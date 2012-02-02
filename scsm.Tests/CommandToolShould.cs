@@ -22,5 +22,12 @@ namespace scsm.Tests
 
             Assert.IsTrue(result.Contains("success"));
         }
+
+        [TestMethod]
+        public void BeAbleToWriteTheSettingToASource()
+        {
+            var runner = new CommandRunner();
+            Assert.IsTrue(runner.RunCommandWithArgument("set.source", "default"));
+        }
     }
 }

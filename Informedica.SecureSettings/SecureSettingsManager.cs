@@ -1,23 +1,51 @@
 using System.Collections.Generic;
 using System.Text;
+using Microsoft.Win32;
 
 namespace Informedica.SecureSettings
 {
     public class SecureSettingsManager
     {
-        private string _secret;
         private readonly Dictionary<string, string> _settings = new Dictionary<string, string>();
+        private RegistryKey _key;
+        private const string KeyName = "SecureSettingsManager";
+        private const string ValueName = "Secret";
+
+        public SecureSettingsManager()
+        {
+            Init();
+        }
+
+        private void Init()
+        {
+            var key = Registry.LocalMachine.OpenSubKey("SOFTWARE", true);
+            // ReSharper disable PossibleNullReferenceException
+            key = key.CreateSubKey("Informedica");
+            _key = key.CreateSubKey(KeyName);
+            // ReSharper restore PossibleNullReferenceException
+        }
+
+        [Alias("set.source")]
+        public void SetSource(string source)
+        {
+            
+        }
 
         [Alias("set.secret")]
         public void SetSecret(string secret)
         {
-            _secret = secret;
+            _key.SetValue(ValueName, secret, RegistryValueKind.String);
         }
 
         [Alias("has.secret")]
         public bool HasSecret(string secret)
         {
-            return _secret == secret;
+            return GetSecret() == secret;
+        }
+
+        private string GetSecret()
+        {
+            return (string) _key.GetValue(ValueName);
         }
 
         [Alias("set.setting")]
@@ -76,7 +104,7 @@ namespace Informedica.SecureSettings
 
         private SymCryptography GetCryptography()
         {
-            var crypt = new SymCryptography {Key = _secret};
+            var crypt = new SymCryptography {Key = GetSecret()};
             return crypt;
         }
     }

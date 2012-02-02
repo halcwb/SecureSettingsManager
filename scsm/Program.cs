@@ -26,6 +26,8 @@ namespace scsm
 
         private static string ProcessArguments(IList<string> args)
         {
+            if (!args.Any()) return ListOptions();
+ 
             var manager = new SecureSettingsManager();
             var result = "";
 
@@ -44,6 +46,25 @@ namespace scsm
             return result;
         }
 
+        private static string ListOptions()
+        {
+            var type = GetSecureSettingsManagerType();
+            var opts = type.GetMethods().Where(m => HasAliasAttribute(m));
+            var result = "\n \n Options are: \n" + opts.Aggregate(string.Empty, (current, opt) => current + ("\n  -- " + GetOptionNameFromAttribute(opt)));
+
+            return result;
+        }
+
+        private static string GetOptionNameFromAttribute(MethodInfo opt)
+        {
+            return ((AliasAttribute)opt.GetCustomAttributes(typeof(AliasAttribute), true).First()).Alias;
+        }
+
+        private static bool HasAliasAttribute(MethodInfo method)
+        {
+            return method.GetCustomAttributes(typeof (AliasAttribute), true).Any();
+        }
+
         private static string CallMethod(SecureSettingsManager  manager, MethodInfo method, object[] parameters)
         {
             try
@@ -58,8 +79,13 @@ namespace scsm
 
         private static MethodInfo GetMethod(string command)
         {
-            var type = typeof (SecureSettingsManager);
+            var type = GetSecureSettingsManagerType();
             return type.GetMethods().Single(m => HasAliasAttributeWithValue(m, command));
+        }
+
+        private static Type GetSecureSettingsManagerType()
+        {
+            return typeof (SecureSettingsManager);
         }
 
         private static bool HasAliasAttributeWithValue(MethodInfo method, string command)
