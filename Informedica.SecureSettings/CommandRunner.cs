@@ -12,8 +12,7 @@ namespace Informedica.SecureSettings
             try
             {
                 var args = option + " " + arg;
-                var command = Scsm;
-                var result = RunCommand(command, args);
+                var result = RunCommand(Scsm, args);
 
                 return result.StartsWith(Success) || string.IsNullOrWhiteSpace(result);
             }

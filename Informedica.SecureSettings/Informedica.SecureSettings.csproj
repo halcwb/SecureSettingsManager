@@ -43,9 +43,12 @@
     <Compile Include="AliasAttribute.cs" />
     <Compile Include="CommandRunner.cs" />
     <Compile Include="Hash.cs" />
+    <Compile Include="ISettingSource.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SecureSettingsManager.cs" />
+    <Compile Include="Setting.cs" />
     <Compile Include="SymCryptorography.cs" />
+    <Compile Include="Testing\TestSettingSource.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

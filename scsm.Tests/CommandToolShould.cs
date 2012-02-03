@@ -1,11 +1,18 @@
 ﻿using Informedica.SecureSettings;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using StructureMap;
 
 namespace scsm.Tests
 {
     [TestClass]
     public class CommandToolShould
     {
+        [ClassInitialize]
+        public static void ClassInitialize(TestContext context)
+        {
+            ObjectFactory.Initialize(x => x.For<ISettingSource>().Use<Informedica.SecureSettings.Testing.TestSettingSource>());
+        }
+
         [TestMethod]
         public void BeAbleToRunMethodByAlias()
         {

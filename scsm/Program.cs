@@ -3,42 +3,44 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Informedica.SecureSettings;
+using StructureMap;
 
 namespace scsm
 {
     class Program
     {
+        private static SecureSettingsManager _source;
+
         static void Main(string[] args)
         {
             var result = "";
             try
             {
                 result = ProcessArguments(args);
-
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.ToString());
-            } 
-            
+            }
+
             Console.WriteLine(result);
         }
 
         private static string ProcessArguments(IList<string> args)
         {
             if (!args.Any()) return ListOptions();
- 
-            var manager = new SecureSettingsManager();
+
+            var manager = GetSecureSettingsManager();
             var result = "";
 
             for (var i = 0; i < args.Count(); i++)
             {
                 var method = GetMethod(args[i]);
                 var numParams = method.GetParameters().Count();
-                
-// ReSharper disable CoVariantArrayConversion
+
+                // ReSharper disable CoVariantArrayConversion
                 result += CallMethod(manager, method, args.Skip(i + 1).Take(numParams).ToArray());
-// ReSharper restore CoVariantArrayConversion
+                // ReSharper restore CoVariantArrayConversion
 
                 i += numParams;
             }
@@ -46,10 +48,22 @@ namespace scsm
             return result;
         }
 
+        private static SecureSettingsManager GetSecureSettingsManager()
+        {
+            if (_source == null) _source = new SecureSettingsManager(GetRegisteredSource());
+            return _source;
+        }
+
+        private static ISettingSource GetRegisteredSource()
+        {
+            ObjectFactory.Initialize(x => { x.UseDefaultStructureMapConfigFile = true; });
+            return ObjectFactory.GetInstance<ISettingSource>();
+        }
+
         private static string ListOptions()
         {
             var type = GetSecureSettingsManagerType();
-            var opts = type.GetMethods().Where(m => HasAliasAttribute(m));
+            var opts = type.GetMethods().Where(HasAliasAttribute);
             var result = "\n \n Options are: \n" + opts.Aggregate(string.Empty, (current, opt) => current + ("\n  -- " + GetOptionNameFromAttribute(opt)));
 
             return result;
@@ -62,10 +76,10 @@ namespace scsm
 
         private static bool HasAliasAttribute(MethodInfo method)
         {
-            return method.GetCustomAttributes(typeof (AliasAttribute), true).Any();
+            return method.GetCustomAttributes(typeof(AliasAttribute), true).Any();
         }
 
-        private static string CallMethod(SecureSettingsManager  manager, MethodInfo method, object[] parameters)
+        private static string CallMethod(SecureSettingsManager manager, MethodInfo method, object[] parameters)
         {
             try
             {
@@ -85,12 +99,12 @@ namespace scsm
 
         private static Type GetSecureSettingsManagerType()
         {
-            return typeof (SecureSettingsManager);
+            return typeof(SecureSettingsManager);
         }
 
         private static bool HasAliasAttributeWithValue(MethodInfo method, string command)
         {
-            return method.GetCustomAttributes(typeof (AliasAttribute), true).Any(a => ((AliasAttribute)a).Alias == command);
+            return method.GetCustomAttributes(typeof(AliasAttribute), true).Any(a => ((AliasAttribute)a).Alias == command);
         }
     }
 }
