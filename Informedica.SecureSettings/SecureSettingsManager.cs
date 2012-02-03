@@ -68,7 +68,7 @@ namespace Informedica.SecureSettings
         [Alias("get.connstr")]
         public string GetConnectionString(string name)
         {
-            return  _settings.ReadConnectionString(name);
+            return Decrypt(_settings.ReadConnectionString(name));
         }
 
         [Alias("set.setting")]
