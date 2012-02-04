@@ -10,5 +10,6 @@ namespace Informedica.SecureSettings
         string ReadAppSetting(string name);
         void Remove(string setting);
         void Remove(Setting setting);
+        void RemoveConnectionString(string name);
     }
 }

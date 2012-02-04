@@ -87,6 +87,27 @@ namespace Informedica.SecureSettings.Tests
             }
         }
 
+        [TestMethod]
+        public void BeAbleToAddAndRemoveAConnectionString()
+        {
+            var source = GetFakeSource();
+            var man = new SecureSettingsManager(source);
+
+            man.SetConnectionString("test", "test");
+            man.RemoveConnectionString("test");
+
+            try
+            {
+                man.GetConnectionString("test");
+                Assert.Fail("ConnectionString should not exist anymore");
+            }
+            catch (Exception e)
+            {
+                Assert.IsNotInstanceOfType(e, typeof(AssertFailedException));
+            }
+
+        }
+
         private static ISettingSource GetFakeSource()
         {
             return new TestSettingSource();

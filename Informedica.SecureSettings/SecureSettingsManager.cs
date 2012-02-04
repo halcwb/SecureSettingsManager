@@ -58,6 +58,7 @@ namespace Informedica.SecureSettings
         [Alias("set.connstr")]
         public void SetConnectionString(string name, string value)
         {
+            name = Encrypt(name);
             value = Encrypt(value);
             _settings.WriteConnectionString(name, value);
         }
@@ -65,16 +66,17 @@ namespace Informedica.SecureSettings
         [Alias("get.connstr")]
         public string GetConnectionString(string name)
         {
+            name = Encrypt(name);
             return Decrypt(_settings.ReadConnectionString(name));
         }
 
-        [Alias("set.name")]
+        [Alias("set.setting")]
         public void SetSetting(string name, string value)
         {
             _settings.WriteAppSetting(name, value);
         }
 
-        [Alias("get.name")]
+        [Alias("get.setting")]
         public string GetSetting(string name)
         {
             return _settings.ReadAppSetting(name);
@@ -144,6 +146,12 @@ namespace Informedica.SecureSettings
         {
             name = Encrypt(name);
             RemoveSetting(name);
+        }
+
+        public void RemoveConnectionString(string name)
+        {
+            name = Encrypt(name);
+            _settings.RemoveConnectionString(name);
         }
     }
 }

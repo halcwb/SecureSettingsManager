@@ -40,6 +40,11 @@ namespace Informedica.SecureSettings.Testing
             _settings.Remove(setting);
         }
 
+        public void RemoveConnectionString(string name)
+        {
+           Remove(name);
+        }
+
         #endregion
 
         #region Implementation of IEnumerable
