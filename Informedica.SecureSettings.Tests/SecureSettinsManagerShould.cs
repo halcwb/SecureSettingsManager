@@ -45,6 +45,48 @@ namespace Informedica.SecureSettings.Tests
             Assert.AreEqual("test", source.ReadAppSetting("test"));
         }
 
+        [TestMethod]
+        public void BeAbleToRemoveASettingFromTheSettingSource()
+        {
+            var source = GetFakeSource();
+            var man = new SecureSettingsManager(source);
+
+            man.SetSetting("test", "test");
+            man.RemoveSetting("test");
+
+            try
+            {
+                man.GetSetting("test");
+                Assert.Fail("Test setting should no longer exist");
+            }
+            catch (Exception e)
+            {
+                Assert.IsNotInstanceOfType(e, typeof(AssertFailedException));
+           }
+        }
+
+        [TestMethod]
+        public void BeAbleToAddAndRemoveAnSecureSetting()
+        {
+            var source = GetFakeSource();
+            var man = new SecureSettingsManager(source);
+
+            man.WriteSecureSetting("test", "test");
+            man.ReadSecureSetting("test");
+
+            man.RemoveSecureSetting("test");
+
+            try
+            {
+                man.ReadSecureSetting("test");
+                Assert.Fail("Secure setting should no longer exist");
+            }
+            catch (Exception e)
+            {
+                Assert.IsNotInstanceOfType(e, typeof(AssertFailedException));
+            }
+        }
+
         private static ISettingSource GetFakeSource()
         {
             return new TestSettingSource();

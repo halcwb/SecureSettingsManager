@@ -1,8 +1,5 @@
-using System;
-using System.Security.AccessControl;
-using System.Security.Permissions;
+using System.Linq;
 using System.Text;
-using System.Threading;
 using Microsoft.Win32;
 
 namespace Informedica.SecureSettings
@@ -71,32 +68,32 @@ namespace Informedica.SecureSettings
             return Decrypt(_settings.ReadConnectionString(name));
         }
 
-        [Alias("set.setting")]
-        public void SetSetting(string setting, string value)
+        [Alias("set.name")]
+        public void SetSetting(string name, string value)
         {
-            _settings.WriteAppSetting(setting, value);
+            _settings.WriteAppSetting(name, value);
         }
 
-        [Alias("get.setting")]
-        public string GetSetting(string setting)
+        [Alias("get.name")]
+        public string GetSetting(string name)
         {
-            return _settings.ReadAppSetting(setting);
+            return _settings.ReadAppSetting(name);
         }
 
         [Alias("set.secure")]
-        public void WriteSecureSetting(string setting, string value)
+        public void WriteSecureSetting(string name, string value)
         {
-            setting = Encrypt(setting);
+            name = Encrypt(name);
             value = Encrypt(value);
 
-            SetSetting(setting, value);
+            SetSetting(name, value);
         }
 
         [Alias("get.secure")]
-        public string GetSecureSetting(string setting)
+        public string ReadSecureSetting(string name)
         {
-            setting = Encrypt(setting);
-            var value = _settings.ReadAppSetting(setting);
+            name = Encrypt(name);
+            var value = _settings.ReadAppSetting(name);
             value = Decrypt(value);
 
             return value;
@@ -129,6 +126,24 @@ namespace Informedica.SecureSettings
         {
             var crypt = new SymCryptography {Key = GetSecret()};
             return crypt;
+        }
+
+        public void RemoveSetting(Setting setting)
+        {
+            _settings.Remove(setting);
+        }
+
+        [Alias("rm.setting")]
+        public void RemoveSetting(string name)
+        {
+            RemoveSetting(_settings.Single(s => s.Name == name));
+        }
+
+        [Alias("rm.secure")]
+        public void RemoveSecureSetting(string name)
+        {
+            name = Encrypt(name);
+            RemoveSetting(name);
         }
     }
 }

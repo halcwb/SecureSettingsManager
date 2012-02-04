@@ -30,6 +30,16 @@ namespace Informedica.SecureSettings.Testing
             return _settings.Single(s => s.Name == name).Value;
         }
 
+        public void Remove(string setting)
+        {
+            Remove(_settings.Single(s =>s.Name == setting));
+        }
+
+        public void Remove(Setting setting)
+        {
+            _settings.Remove(setting);
+        }
+
         #endregion
 
         #region Implementation of IEnumerable

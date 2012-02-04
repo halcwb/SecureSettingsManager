@@ -8,5 +8,7 @@ namespace Informedica.SecureSettings
         string ReadConnectionString(string name);
         void WriteAppSetting(string name, string setting);
         string ReadAppSetting(string name);
+        void Remove(string setting);
+        void Remove(Setting setting);
     }
 }
