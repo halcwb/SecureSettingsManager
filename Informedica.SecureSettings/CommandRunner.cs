@@ -7,7 +7,7 @@ namespace Informedica.SecureSettings
         private const string Success = "success";
         private const string Scsm = "scsm.exe";
 
-        public bool RunCommandWithArgument(string option, string arg)
+        public bool RunOptionWithArguments(string option, string arg)
         {
             try
             {
@@ -16,15 +16,15 @@ namespace Informedica.SecureSettings
 
                 return result.StartsWith(Success) || string.IsNullOrWhiteSpace(result);
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                return false;
+                throw e;
             }
         }
 
         public bool CheckCommandLine()
         {
-            return RunCommandWithArgument(string.Empty, string.Empty);
+            return RunOptionWithArguments(string.Empty, string.Empty);
         }
 
         private static string RunCommand(string command, string args)
@@ -49,9 +49,9 @@ namespace Informedica.SecureSettings
             return result;
         }
 
-        public string GetCommandResult(string args)
+        public string GetCommandResult(string optsargs)
         {
-            return RunCommand(Scsm, args);
+            return RunCommand(Scsm, optsargs);
         }
     }
 

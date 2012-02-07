@@ -50,7 +50,9 @@ namespace Informedica.SecureSettings
             return GetSecret() == secret;
         }
 
-        private string GetSecret()
+        
+        [Alias("get.secret")]
+        public string GetSecret()
         {
             return (string) _key.GetValue(ValueName);
         }
