@@ -16,25 +16,25 @@ namespace scsm.Tests
         [TestMethod]
         public void BeAbleToRunMethodByAlias()
         {
+            using (new Testing(true))
+            {
             var runner = new CommandRunner();
-            Assert.IsTrue(runner.RunCommandWithArgument("set.setting", "test setting"));
+            Assert.IsTrue(runner.RunOptionWithArguments("set.setting", "\"test setting\""));
+            }
         }
 
         [TestMethod]
         public void ReturnsSuccesWhenCompleted()
         {
-            var runner = new CommandRunner();
-            var result =
-                runner.GetCommandResult("set.setting testsetting \"this is a test setting\" get.setting testsetting");
+            using (new Testing(true))
+            {
+                var runner = new CommandRunner();
+                var result =
+                    runner.GetCommandResult("set.setting testsetting \"this is a test setting\" get.setting testsetting");
+                Assert.IsTrue(result.Contains("success"));
+            }
 
-            Assert.IsTrue(result.Contains("success"));
         }
 
-        [TestMethod]
-        public void BeAbleToWriteTheSettingToASource()
-        {
-            var runner = new CommandRunner();
-            Assert.IsTrue(runner.RunCommandWithArgument("set.source", "default"));
-        }
     }
 }

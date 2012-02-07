@@ -56,7 +56,7 @@ namespace scsm
 
         private static ISettingSource GetRegisteredSource()
         {
-            ObjectFactory.Initialize(x => { x.UseDefaultStructureMapConfigFile = true; });
+            if (!Testing.IsTest) ObjectFactory.Initialize(x => { x.UseDefaultStructureMapConfigFile = true; });
             return ObjectFactory.GetInstance<ISettingSource>();
         }
 
