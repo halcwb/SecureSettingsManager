@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Informedica.SecureSettings;
+using Informedica.SecureSettings.Testing;
 using StructureMap;
 
 namespace scsm
@@ -56,8 +57,16 @@ namespace scsm
 
         private static ISettingSource GetRegisteredSource()
         {
-            if (!Testing.IsTest) ObjectFactory.Initialize(x => { x.UseDefaultStructureMapConfigFile = true; });
-            return ObjectFactory.GetInstance<ISettingSource>();
+            try
+            {
+                ObjectFactory.Initialize(x => { x.UseDefaultStructureMapConfigFile = true; });
+                return ObjectFactory.GetInstance<ISettingSource>();
+
+            }
+            catch (Exception)
+            {
+                return new TestSettingSource();
+            }
         }
 
         private static string ListOptions()
