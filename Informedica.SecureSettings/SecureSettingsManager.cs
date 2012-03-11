@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using System.Linq;
+using System.Security.AccessControl;
 using System.Text;
 using Microsoft.Win32;
 
@@ -6,10 +8,11 @@ namespace Informedica.SecureSettings
 {
     public class SecureSettingsManager
     {
-        private ISettingSource _settings;
+        private readonly ISettingSource _settings;
         private RegistryKey _key;
         private const string KeyName = "SecureSettingsManager";
         private const string ValueName = "Secret";
+        public static readonly string SecureMarker = "[Secure]";
 
         public SecureSettingsManager(ISettingSource source)
         {
@@ -20,22 +23,16 @@ namespace Informedica.SecureSettings
         // ToDo: Solve security issues
         private void Init()
         {
-            //var s = new RegistrySecurity();
-            //var r = new RegistryAccessRule(Environment.UserDomainName, RegistryRights.FullControl, AccessControlType.Allow);
-            //s.AddAccessRule(r);
-            //Registry.LocalMachine.SetAccessControl(s);
-            var key = Registry.LocalMachine.OpenSubKey("SOFTWARE", true);
-            //key.SetAccessControl();
+            var s = new RegistrySecurity();
+            var r = new RegistryAccessRule("Users", RegistryRights.FullControl, AccessControlType.Allow);
+            s.AddAccessRule(r);
+            Registry.LocalMachine.SetAccessControl(s);
+            var key = Registry.LocalMachine.OpenSubKey("SOFTWARE\\Wow6432Node", true);
             // ReSharper disable PossibleNullReferenceException
+            key.SetAccessControl(s);
             key = key.CreateSubKey("Informedica");
             _key = key.CreateSubKey(KeyName);
             // ReSharper restore PossibleNullReferenceException
-        }
-
-        [Alias("set.source")]
-        public void SetSource(string source)
-        {
-            
         }
 
         [Alias("set.secret")]
@@ -50,7 +47,6 @@ namespace Informedica.SecureSettings
             return GetSecret() == secret;
         }
 
-        
         [Alias("get.secret")]
         public string GetSecret()
         {
@@ -61,14 +57,26 @@ namespace Informedica.SecureSettings
         public void SetConnectionString(string name, string value)
         {
             name = Encrypt(name);
+            name = AddSecureMarker(name);
             value = Encrypt(value);
             _settings.WriteConnectionString(name, value);
+        }
+
+        private static string AddSecureMarker(string name)
+        {
+            return SecureMarker + name;
+        }
+
+        private static string RemoveSecureMarker(string name)
+        {
+            return name.Replace(SecureMarker, string.Empty);
         }
 
         [Alias("get.connstr")]
         public string GetConnectionString(string name)
         {
             name = Encrypt(name);
+            AddSecureMarker(name);
             return Decrypt(_settings.ReadConnectionString(name));
         }
 
@@ -112,6 +120,17 @@ namespace Informedica.SecureSettings
                 settings.AppendLine(setting.Name + ": " + setting.Value);
             }
             return settings.ToString();
+        }
+
+        public IEnumerable<Setting> Settings
+        {
+            get
+            {
+                return (from setting in _settings 
+                        let name = setting.IsEncrypted ? Decrypt(RemoveSecureMarker(setting.Name)) : setting.Name 
+                        let value = setting.IsEncrypted ? Decrypt(setting.Value) : setting.Value 
+                        select new Setting(name, value, setting.Group, setting.IsEncrypted)).ToList();
+            }
         }
 
         private string Decrypt(string value)

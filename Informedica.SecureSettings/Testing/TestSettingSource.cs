@@ -8,11 +8,18 @@ namespace Informedica.SecureSettings.Testing
     {
         private readonly IList<Setting> _settings = new List<Setting>();
 
+        public TestSettingSource() {}
+
+        public TestSettingSource(IList<Setting> settings)
+        {
+            _settings = settings;
+        }
+
         #region Implementation of ISettingSource
 
         public void WriteConnectionString(string name, string connectionString)
         {
-            _settings.Add(new Setting(name, connectionString));
+            _settings.Add(new Setting(name, connectionString, "conn", true));
         }
 
         public string ReadConnectionString(string name)
@@ -22,7 +29,7 @@ namespace Informedica.SecureSettings.Testing
 
         public void WriteAppSetting(string name, string setting)
         {
-            _settings.Add(new Setting(name, setting));
+            _settings.Add(new Setting(name, setting, "app", false));
         }
 
         public string ReadAppSetting(string name)

@@ -177,7 +177,7 @@ namespace Informedica.SecureSettings
             byte[] keyByte = GetLegalKey();
 
             // Set private key
-            _cryptoService.Key = keyByte;
+            _cryptoService.Key = keyByte; 
             SetLegalIv();
 
             // Decryptor object
