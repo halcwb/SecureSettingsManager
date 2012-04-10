@@ -39,7 +39,7 @@ namespace Informedica.SecureSettings.Testing
 
         public void Remove(string setting)
         {
-            Remove(_settings.Single(s =>s.Name == setting));
+            Remove(_settings.Single(s =>s.Name.Contains(setting)));
         }
 
         public void Remove(Setting setting)

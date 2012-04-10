@@ -76,7 +76,7 @@ namespace Informedica.SecureSettings
         public string GetConnectionString(string name)
         {
             name = Encrypt(name);
-            AddSecureMarker(name);
+            name = AddSecureMarker(name);
             return Decrypt(_settings.ReadConnectionString(name));
         }
 
