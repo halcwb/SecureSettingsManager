@@ -129,7 +129,7 @@ namespace Informedica.SecureSettings
                 return (from setting in _settings 
                         let name = setting.IsEncrypted ? Decrypt(RemoveSecureMarker(setting.Name)) : setting.Name 
                         let value = setting.IsEncrypted ? Decrypt(setting.Value) : setting.Value 
-                        select new Setting(name, value, setting.Group, setting.IsEncrypted)).ToList();
+                        select new Setting(name, value, setting.Type, setting.IsEncrypted)).ToList();
             }
         }
 

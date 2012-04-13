@@ -1,6 +1,5 @@
 ﻿using Informedica.SecureSettings;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using StructureMap;
 
 namespace scsm.Tests
 {

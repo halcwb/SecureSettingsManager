@@ -50,7 +50,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SettingsSourceShould.cs" />
     <Compile Include="SecureSettinsManagerShould.cs" />
+    <Compile Include="SettingTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Informedica.SecureSettings\Informedica.SecureSettings.csproj">
