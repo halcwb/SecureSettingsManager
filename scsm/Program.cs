@@ -10,7 +10,7 @@ namespace scsm
 {
     class Program
     {
-        private static SecureSettingsManager _source;
+        private static SecureSettingSource _source;
 
         static void Main(string[] args)
         {
@@ -49,9 +49,9 @@ namespace scsm
             return result;
         }
 
-        private static SecureSettingsManager GetSecureSettingsManager()
+        private static SecureSettingSource GetSecureSettingsManager()
         {
-            if (_source == null) _source = new SecureSettingsManager(GetRegisteredSource());
+            if (_source == null) _source = new SecureSettingSource(GetRegisteredSource());
             return _source;
         }
 
@@ -88,7 +88,7 @@ namespace scsm
             return method.GetCustomAttributes(typeof(AliasAttribute), true).Any();
         }
 
-        private static string CallMethod(SecureSettingsManager manager, MethodInfo method, object[] parameters)
+        private static string CallMethod(SecureSettingSource manager, MethodInfo method, object[] parameters)
         {
             try
             {
@@ -108,7 +108,7 @@ namespace scsm
 
         private static Type GetSecureSettingsManagerType()
         {
-            return typeof(SecureSettingsManager);
+            return typeof(SecureSettingSource);
         }
 
         private static bool HasAliasAttributeWithValue(MethodInfo method, string command)

@@ -42,13 +42,17 @@
   <ItemGroup>
     <Compile Include="AliasAttribute.cs" />
     <Compile Include="CommandRunner.cs" />
+    <Compile Include="CryptoGraphy.cs" />
     <Compile Include="Hash.cs" />
     <Compile Include="ISettingSource.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SecureSettingsManager.cs" />
+    <Compile Include="SecretKeyManager.cs" />
+    <Compile Include="SecureSettingSource.cs" />
     <Compile Include="Setting.cs" />
+    <Compile Include="SettingSource.cs" />
     <Compile Include="StringCannotBeNullOrWhiteSpaceException.cs" />
     <Compile Include="SymCryptorography.cs" />
+    <Compile Include="Testing\MyTestSettingSource.cs" />
     <Compile Include="Testing\TestSettingSource.cs" />
   </ItemGroup>
   <ItemGroup>

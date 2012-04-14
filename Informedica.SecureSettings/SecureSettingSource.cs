@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Security.AccessControl;
 using System.Text;
@@ -6,18 +8,29 @@ using Microsoft.Win32;
 
 namespace Informedica.SecureSettings
 {
-    public class SecureSettingsManager
+    public class SecureSettingSource
     {
         private readonly ISettingSource _settings;
         private RegistryKey _key;
         private const string KeyName = "SecureSettingsManager";
         private const string ValueName = "Secret";
         public static readonly string SecureMarker = "[Secure]";
+        private readonly SettingSource _source;
+        private SecretKeyManager _secretKeyManager;
+        private CryptoGraphy _cryptographer;
 
-        public SecureSettingsManager(ISettingSource source)
+        [Obsolete]
+        public SecureSettingSource(ISettingSource source)
         {
             _settings = source;
             Init();
+        }
+
+        public SecureSettingSource(SettingSource source, SecretKeyManager secretKeyManager, CryptoGraphy crypt)
+        {
+            _source = source;
+            _secretKeyManager = secretKeyManager;
+            _cryptographer = crypt;
         }
 
         // ToDo: Solve security issues
@@ -35,24 +48,28 @@ namespace Informedica.SecureSettings
             // ReSharper restore PossibleNullReferenceException
         }
 
+        [Obsolete]
         [Alias("set.secret")]
         public void SetSecret(string secret)
         {
             _key.SetValue(ValueName, secret, RegistryValueKind.String);
         }
 
+        [Obsolete]
         [Alias("has.secret")]
         public bool HasSecret(string secret)
         {
             return GetSecret() == secret;
         }
 
+        [Obsolete]
         [Alias("get.secret")]
         public string GetSecret()
         {
             return (string) _key.GetValue(ValueName);
         }
 
+        [Obsolete]
         [Alias("set.connstr")]
         public void SetConnectionString(string name, string value)
         {
@@ -72,6 +89,7 @@ namespace Informedica.SecureSettings
             return name.Replace(SecureMarker, string.Empty);
         }
 
+        [Obsolete]
         [Alias("get.connstr")]
         public string GetConnectionString(string name)
         {
@@ -80,18 +98,21 @@ namespace Informedica.SecureSettings
             return Decrypt(_settings.ReadConnectionString(name));
         }
 
+        [Obsolete]
         [Alias("set.setting")]
         public void SetSetting(string name, string value)
         {
             _settings.WriteAppSetting(name, value);
         }
 
+        [Obsolete]
         [Alias("get.setting")]
         public string GetSetting(string name)
         {
             return _settings.ReadAppSetting(name);
         }
 
+        [Obsolete]
         [Alias("set.secure")]
         public void WriteSecureSetting(string name, string value)
         {
@@ -101,6 +122,7 @@ namespace Informedica.SecureSettings
             SetSetting(name, value);
         }
 
+        [Obsolete]
         [Alias("get.secure")]
         public string ReadSecureSetting(string name)
         {
@@ -111,6 +133,7 @@ namespace Informedica.SecureSettings
             return value;
         }
 
+        [Obsolete]
         [Alias("get.settings")]
         public string GetSettings()
         {
@@ -153,15 +176,17 @@ namespace Informedica.SecureSettings
 
         public void RemoveSetting(Setting setting)
         {
-            _settings.Remove(setting);
+            _source.RemoveSetting(setting);
         }
 
+        [Obsolete]
         [Alias("rm.setting")]
         public void RemoveSetting(string name)
         {
             RemoveSetting(_settings.Single(s => s.Name == name));
         }
 
+        [Obsolete]
         [Alias("rm.secure")]
         public void RemoveSecureSetting(string name)
         {
@@ -169,10 +194,60 @@ namespace Informedica.SecureSettings
             RemoveSetting(name);
         }
 
+        [Obsolete]
         public void RemoveConnectionString(string name)
         {
             name = Encrypt(name);
             _settings.RemoveConnectionString(name);
+        }
+
+        public void WriteSetting(Setting setting)
+        {
+            _source.WriteSetting(setting);
+        }
+
+        public string GetSecretKey()
+        {
+            return  _secretKeyManager.GetKey();
+        }
+
+        public void SetSecretKey(string secret)
+        {
+            _secretKeyManager.SetKey(secret);
+        }
+
+        public Setting ReadSetting(Enum settingType, string settingName)
+        {
+            return _source.ReadSetting(settingType, settingName);
+        }
+
+        public void WriteSecure(Setting setting)
+        {
+            var encrypted = new Setting(CryptoGrapher.Encrypt(setting.Name),
+                                        CryptoGrapher.Encrypt(setting.Value), 
+                                        setting.Type, 
+                                        true);
+            WriteSetting(encrypted);
+        }
+
+        public Setting ReadSecure(Enum settingType, string settingName)
+        {
+            var setting = ReadSetting(settingType, settingName);
+            var decrypted = new Setting(CryptoGrapher.Decrypt(setting.Name),
+                                        CryptoGrapher.Decrypt(setting.Value),
+                                        setting.Type, 
+                                        true);
+
+            return decrypted;
+        }
+
+        public CryptoGraphy CryptoGrapher
+        {
+            get
+            {
+                _cryptographer.SetKey(_secretKeyManager.GetKey());
+                return _cryptographer;
+            }
         }
     }
 }

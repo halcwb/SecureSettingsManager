@@ -10,11 +10,11 @@
       <FileName>Setting.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="Informedica.SecureSettings.SecureSettingsManager">
+  <Class Name="Informedica.SecureSettings.SecureSettingSource">
     <Position X="3.25" Y="0.5" Width="2.25" />
     <TypeIdentifier>
       <HashCode>JQACAAkAAGAAAAAQgKCAAAoggAAAAAAEgAAGAAhAQAA=</HashCode>
-      <FileName>SecureSettingsManager.cs</FileName>
+      <FileName>SecureSettingSource.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Font Name="Segoe UI" Size="9" />
