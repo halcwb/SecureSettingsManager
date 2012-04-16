@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace Informedica.SecureSettings.Sources
@@ -11,17 +12,28 @@ namespace Informedica.SecureSettings.Sources
     /// </summary>
     public interface ISettingSource : IEnumerable<Setting>
     {
+        [Obsolete]
         void WriteConnectionString(string name, string connectionString);
+        [Obsolete]
         string ReadConnectionString(string name);
+        [Obsolete]
         void WriteAppSetting(string name, string setting);
+        [Obsolete]
         string ReadAppSetting(string name);
+        [Obsolete]
         void Remove(string setting);
         void Remove(Setting setting);
+        [Obsolete]
         void RemoveConnectionString(string name);
+        [Obsolete]
         string ReadSecureSetting(string name);
+        [Obsolete]
         void WriteSecureSetting(string key, string value);
+        [Obsolete]
         string GetConnectionString(string name);
+        [Obsolete]
         void SetConnectionString(string name, string connectionString);
+        [Obsolete]
         void RemoveSecureSetting(string appSettingName);
     }
 }
