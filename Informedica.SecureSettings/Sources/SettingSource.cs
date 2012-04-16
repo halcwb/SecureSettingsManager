@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Informedica.SecureSettings
+namespace Informedica.SecureSettings.Sources
 {
     public abstract class SettingSource: IEnumerable<Setting>
     {

@@ -2,7 +2,7 @@ using System;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace Informedica.SecureSettings
+namespace Informedica.SecureSettings.Cryptographers
 {
     /// <summary>CHashProtector is a password protection one way encryption algorithm</summary>
     /// <programmer>Chidi C. Ezeukwu</programmer>

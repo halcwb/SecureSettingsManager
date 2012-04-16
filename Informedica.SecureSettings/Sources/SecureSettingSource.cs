@@ -1,14 +1,16 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Security.AccessControl;
 using System.Text;
+using Informedica.SecureSettings.CommandLine;
+using Informedica.SecureSettings.Cryptographers;
 using Microsoft.Win32;
 
-namespace Informedica.SecureSettings
+namespace Informedica.SecureSettings.Sources
 {
-    public class SecureSettingSource
+    public class SecureSettingSource: ISettingSource
     {
         private readonly ISettingSource _settings;
         private RegistryKey _key;
@@ -194,6 +196,36 @@ namespace Informedica.SecureSettings
             RemoveSetting(name);
         }
 
+        public void WriteConnectionString(string name, string connectionString)
+        {
+            throw new NotImplementedException();
+        }
+
+        public string ReadConnectionString(string name)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void WriteAppSetting(string name, string setting)
+        {
+            throw new NotImplementedException();
+        }
+
+        public string ReadAppSetting(string name)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Remove(string setting)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Remove(Setting setting)
+        {
+            throw new NotImplementedException();
+        }
+
         [Obsolete]
         public void RemoveConnectionString(string name)
         {
@@ -233,7 +265,7 @@ namespace Informedica.SecureSettings
         public Setting ReadSecure(Enum settingType, string settingName)
         {
             var setting = ReadSetting(settingType, settingName);
-            var decrypted = new Setting(CryptoGrapher.Decrypt(setting.Name),
+            var decrypted = new Setting(RemoveSecureMarker(CryptoGrapher.Decrypt(setting.Name)),
                                         CryptoGrapher.Decrypt(setting.Value),
                                         setting.Type, 
                                         true);
@@ -249,5 +281,33 @@ namespace Informedica.SecureSettings
                 return _cryptographer;
             }
         }
+
+        #region Implementation of IEnumerable
+
+        /// <summary>
+        /// Returns an enumerator that iterates through the collection.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="T:System.Collections.Generic.IEnumerator`1"/> that can be used to iterate through the collection.
+        /// </returns>
+        /// <filterpriority>1</filterpriority>
+        public IEnumerator<Setting> GetEnumerator()
+        {
+            return _settings.GetEnumerator();
+        }
+
+        /// <summary>
+        /// Returns an enumerator that iterates through a collection.
+        /// </summary>
+        /// <returns>
+        /// An <see cref="T:System.Collections.IEnumerator"/> object that can be used to iterate through the collection.
+        /// </returns>
+        /// <filterpriority>2</filterpriority>
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+        #endregion
     }
 }

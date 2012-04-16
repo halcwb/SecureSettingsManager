@@ -3,7 +3,7 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace Informedica.SecureSettings
+namespace Informedica.SecureSettings.Cryptographers
 {
 
     /// <summary>Contains methods and properties for two-way encryption and decryption</summary>

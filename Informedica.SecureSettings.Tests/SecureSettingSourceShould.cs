@@ -1,4 +1,6 @@
-﻿using TypeMock.ArrangeActAssert;
+﻿using Informedica.SecureSettings.Cryptographers;
+using Informedica.SecureSettings.Sources;
+using TypeMock.ArrangeActAssert;
 using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -37,8 +39,9 @@ namespace Informedica.SecureSettings.Tests
             Isolate.WhenCalled(() => _secretKeyManager.SetKey(Secret)).IgnoreCall();
 
             _crypt = Isolate.Fake.Instance<CryptoGraphy>();
-            Isolate.WhenCalled(() => _crypt.Encrypt(_settingName)).WillReturn("Encrypted!!");
-            Isolate.WhenCalled(() => _crypt.Decrypt(_settingName)).WillReturn("Decrypted!!");
+            var markedname = SecureSettingSource.SecureMarker + _settingName;
+            Isolate.WhenCalled(() => _crypt.Encrypt(_settingName)).WillReturn(markedname);
+            Isolate.WhenCalled(() => _crypt.Decrypt(_settingName)).WillReturn(markedname);
 
             _secureSource = new SecureSettingSource(_source, _secretKeyManager, _crypt);
         }
@@ -103,6 +106,28 @@ namespace Informedica.SecureSettings.Tests
             {
                 Assert.Fail(e.ToString());
             }
+        }
+
+        [Isolated]
+        [TestMethod]
+        public void ReturnASettingWithTheSameNameAndValueAfterWritingThatSettingAndReadingIt()
+        {
+            _secureSource.WriteSetting(_fakeSetting);
+            var setting = _secureSource.ReadSetting(_app, _fakeSetting.Name);
+
+            Assert.AreEqual(_fakeSetting.Name, setting.Name);
+            Assert.AreEqual(_fakeSetting.Value, setting.Value);
+            Assert.AreEqual(_fakeSetting.Type, setting.Type);
+        }
+
+        [Isolated]
+        [TestMethod]
+        public void ReturnASettingWithTheSameNameAfterSecureWritingThatSettingAndReadingIt()
+        {
+            _secureSource.WriteSecure(_fakeSetting);
+            var setting = _secureSource.ReadSecure(_app, _fakeSetting.Name);
+
+            Assert.AreEqual(_fakeSetting.Name, setting.Name);
         }
 
         [Isolated]

@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Informedica.SecureSettings
+namespace Informedica.SecureSettings.Sources
 {
     /// <summary>
     /// The SettingSource is used to write and read a setting. 
@@ -18,5 +18,10 @@ namespace Informedica.SecureSettings
         void Remove(string setting);
         void Remove(Setting setting);
         void RemoveConnectionString(string name);
+        string ReadSecureSetting(string name);
+        void WriteSecureSetting(string key, string value);
+        string GetConnectionString(string name);
+        void SetConnectionString(string name, string connectionString);
+        void RemoveSecureSetting(string appSettingName);
     }
 }

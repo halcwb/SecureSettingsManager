@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Informedica.SecureSettings.Sources;
 
 namespace Informedica.SecureSettings.Testing
 {

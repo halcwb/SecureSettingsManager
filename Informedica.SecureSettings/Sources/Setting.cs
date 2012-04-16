@@ -1,6 +1,6 @@
-using System;
+using Informedica.SecureSettings.Exceptions;
 
-namespace Informedica.SecureSettings
+namespace Informedica.SecureSettings.Sources
 {
 
     /// <summary>

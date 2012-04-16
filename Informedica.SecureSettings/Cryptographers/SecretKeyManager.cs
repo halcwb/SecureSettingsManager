@@ -1,4 +1,4 @@
-namespace Informedica.SecureSettings
+namespace Informedica.SecureSettings.Cryptographers
 {
     public class SecretKeyManager
     {

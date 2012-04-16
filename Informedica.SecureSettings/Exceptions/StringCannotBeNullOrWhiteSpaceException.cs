@@ -1,6 +1,6 @@
 using System;
 
-namespace Informedica.SecureSettings
+namespace Informedica.SecureSettings.Exceptions
 {
     public class StringCannotBeNullOrWhiteSpaceException: Exception
     {

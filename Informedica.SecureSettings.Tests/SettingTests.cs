@@ -1,4 +1,6 @@
 ﻿using System;
+using Informedica.SecureSettings.Exceptions;
+using Informedica.SecureSettings.Sources;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Informedica.SecureSettings.Tests

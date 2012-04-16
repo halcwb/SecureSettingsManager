@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Informedica.SecureSettings.Sources;
 
 namespace Informedica.SecureSettings.Testing
 {
@@ -50,6 +51,31 @@ namespace Informedica.SecureSettings.Testing
         public void RemoveConnectionString(string name)
         {
            Remove(name);
+        }
+
+        public string ReadSecureSetting(string name)
+        {
+            return ReadConnectionString(name);
+        }
+
+        public void WriteSecureSetting(string key, string value)
+        {
+            WriteConnectionString(key, value);
+        }
+
+        public string GetConnectionString(string name)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public void SetConnectionString(string name, string connectionString)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public void RemoveSecureSetting(string appSettingName)
+        {
+            throw new System.NotImplementedException();
         }
 
         #endregion

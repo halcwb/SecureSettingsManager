@@ -1,4 +1,6 @@
 ﻿using Informedica.SecureSettings;
+using Informedica.SecureSettings.CommandLine;
+using Informedica.SecureSettings.Sources;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace scsm.Tests

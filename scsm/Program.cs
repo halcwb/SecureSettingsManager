@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Informedica.SecureSettings;
+using Informedica.SecureSettings.CommandLine;
+using Informedica.SecureSettings.Sources;
 using Informedica.SecureSettings.Testing;
 using StructureMap;
 
