@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Informedica.SecureSettings.Exceptions;
 using Informedica.SecureSettings.Sources;
 using Informedica.SecureSettings.Testing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -111,8 +112,34 @@ namespace Informedica.SecureSettings.Tests
             source.RemoveSetting(setting);
 
             Assert.AreEqual(count -1 , source.Count());
-        }    
+        }
+    
+        [Isolated]
+        [TestMethod]
+        public void ThrowAnMethodNotFoundExceptionWhenMethodIsCalledButNotRegistered()
+        {
+            var source = SetupSettingSourceWithoutWritersOrReadersOrRemovers();
+            var setting = new Setting("Test", "Test", MyTestSettingSource.SettingTypes.App.ToString(), false);
 
+            try
+            {
+                source.WriteSetting(setting);
+
+            }
+            catch (Exception e)
+            {
+                Assert.IsInstanceOfType(e, typeof(MissingMethodException));
+            }
+        }
+
+        private static MyTestSettingSource SetupSettingSourceWithoutWritersOrReadersOrRemovers()
+        {
+            var fakeIDictionary2 = Isolate.Fake.Instance<IDictionary<Enum, Action<Setting>>>();
+            var fakeIDictionary1 = Isolate.Fake.Instance<IDictionary<Enum, Func<String, Setting>>>();
+            var fakeIDictionary = Isolate.Fake.Instance<IDictionary<Enum, Action<Setting>>>();
+            var source = new MyTestSettingSource(fakeIDictionary, fakeIDictionary1, fakeIDictionary2);
+            return source;
+        }
     }
 
     public static class FakeRemovers

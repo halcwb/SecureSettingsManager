@@ -6,19 +6,22 @@ namespace Informedica.SecureSettings.Sources
 {
     public abstract class SettingSource: IEnumerable<Setting>
     {
-        protected IDictionary<Enum, Action<Setting>> Writers;
-        protected IDictionary<Enum, Func<string, Setting>> Readers;
-        protected IDictionary<Enum, Action<Setting>> Removers;
+        private IDictionary<Enum, Action<Setting>> _writers;
+        private IDictionary<Enum, Func<string, Setting>> _readers;
+        private IDictionary<Enum, Action<Setting>> _removers;
+
+        protected SettingSource()
+        {
+            Init();
+        }
 
         protected SettingSource(IDictionary<Enum, Action<Setting>> writers, 
                                 IDictionary<Enum, Func<string, Setting>> readers, 
                                 IDictionary<Enum, Action<Setting>> removers)
         {
-            Writers = writers;
-            Readers = readers;
-            Removers = removers;
-
-            Init();
+            _writers = writers;
+            _readers = readers;
+            _removers = removers;
         }
 
         private void Init()
@@ -28,22 +31,43 @@ namespace Informedica.SecureSettings.Sources
             RegisterRemovers();
         }
 
+        protected IDictionary<Enum, Action<Setting>> Writers
+        {
+            get { return _writers ?? (_writers = new Dictionary<Enum, Action<Setting>>()); }
+        }
+
+        protected IDictionary<Enum, Func<string, Setting>> Readers
+        {
+            get { return _readers ?? (_readers = new Dictionary<Enum, Func<string, Setting>>()); }
+        }
+
+        protected IDictionary<Enum, Action<Setting>> Removers
+        {
+            get { return _removers ?? (_removers = new Dictionary<Enum, Action<Setting>>()); }
+        }
+
         public void WriteSetting(Setting setting)
         {
-            Writers[SettingTypeToString(setting)].Invoke(setting);
+            var method = Writers.ContainsKey(SettingTypeToEnum(setting)) ? Writers[SettingTypeToEnum(setting)]: null;
+            if (method == null) throw new MissingMethodException("Method not found to write setting of type: " + setting.Type);
+            method.Invoke(setting);
         }
 
         public Setting ReadSetting(Enum type, string name)
         {
-            return Readers[type].Invoke(name);
+            var method = Readers.ContainsKey(type) ? Readers[type] : null;
+            if (method == null) throw new MissingMethodException("Method not found to read setting of type: " + type);
+            return  method.Invoke(name);
         }
 
         public void RemoveSetting(Setting setting)
         {
-            Removers[SettingTypeToString(setting)].Invoke(setting);
+            var method = Removers.ContainsKey(SettingTypeToEnum(setting)) ? Removers[SettingTypeToEnum(setting)]: null;
+            if (method == null) throw new MissingMethodException("Method not found to remove setting of type: " + setting.Type);
+            method.Invoke(setting);
         }
 
-        protected abstract Enum SettingTypeToString(Setting setting);
+        protected abstract Enum SettingTypeToEnum(Setting setting);
 
         protected abstract void RegisterReaders();
         protected abstract void RegisterWriters();
@@ -78,5 +102,7 @@ namespace Informedica.SecureSettings.Sources
         }
 
         #endregion
+
+        public abstract void Save();
     }
 }

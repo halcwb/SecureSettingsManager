@@ -20,6 +20,10 @@ namespace Informedica.SecureSettings.Testing
                                    IDictionary<Enum, Action<Setting>> removers) : base(writers, readers, removers)
         {}
 
+        private MyTestSettingSource()
+        {
+        }
+
         private void WriteAppSetting(Setting setting)
         {
             _appsetting = setting;
@@ -46,7 +50,7 @@ namespace Informedica.SecureSettings.Testing
             var readers = new Dictionary<Enum, Func<string, Setting>>();
             var removers = new Dictionary<Enum, Action<Setting>>();
 
-            return new MyTestSettingSource(writers, readers, removers);
+            return new MyTestSettingSource();
         }
 
         #region Overrides of SettingSource
@@ -85,7 +89,7 @@ namespace Informedica.SecureSettings.Testing
             _appsetting = null;
         }
 
-        protected override Enum SettingTypeToString(Setting setting)
+        protected override Enum SettingTypeToEnum(Setting setting)
         {
             SettingTypes value;
             Enum.TryParse(setting.Type, out value);
@@ -102,6 +106,11 @@ namespace Informedica.SecureSettings.Testing
 
                 return settings;
             }
+        }
+
+        public override void Save()
+        {
+            throw new NotImplementedException();
         }
 
         #endregion
