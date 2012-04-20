@@ -22,7 +22,7 @@ namespace Informedica.SecureSettings.Tests
             try
             {
                 Assert.IsFalse(encrypted == "Test");
-                Isolate.Verify.WasCalledWithAnyArguments(() => _symCrypt.Key);
+                Isolate.Verify.WasCalledWithAnyArguments(() => _symCrypt.Key = null);
             }
             catch (System.Exception e)
             {

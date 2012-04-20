@@ -2,7 +2,7 @@
 {
     public static class CryptographyFactory
     {
-        public static CryptoGraphy GetCryptographt()
+        public static CryptoGraphy GetCryptography()
         {
             return new CryptographyAdapter(new SymCryptography());
         }

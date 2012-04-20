@@ -55,7 +55,6 @@
     <Compile Include="Sources\Setting.cs" />
     <Compile Include="Sources\SettingSource.cs" />
     <Compile Include="Testing\MyTestSettingSource.cs" />
-    <Compile Include="Testing\TestSettingSource.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Settingscd.cd" />

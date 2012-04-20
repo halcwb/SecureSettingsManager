@@ -95,12 +95,13 @@ namespace Informedica.SecureSettings.Tests
 
         [Isolated]
         [TestMethod]
-        public void CallSettingSourceToReadASetting()
+        public void CallSettingSourceWithEncryptedNameToReadASetting()
         {
             try
             {
                 _secureSource.ReadSetting(_app, _settingName);
-                Isolate.Verify.WasCalledWithExactArguments(() => _source.ReadSetting(_app, _settingName));
+                var encrypted = _crypt.Encrypt(_settingName);
+                Isolate.Verify.WasCalledWithExactArguments(() => _source.ReadSetting(_app, encrypted));
             }
             catch (Exception e)
             {

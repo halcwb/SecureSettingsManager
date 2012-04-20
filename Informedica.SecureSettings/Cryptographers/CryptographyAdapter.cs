@@ -16,8 +16,6 @@ namespace Informedica.SecureSettings.Cryptographers
         public override string Encrypt(string value)
         {
             _symCrypt.Key = Key;
-            // ToDo Remove below call, this is just for typemock
-            Key = _symCrypt.Key;
             return _symCrypt.Encrypt(value);
         }
 

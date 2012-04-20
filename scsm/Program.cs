@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using Informedica.SecureSettings;
 using Informedica.SecureSettings.CommandLine;
+using Informedica.SecureSettings.Cryptographers;
 using Informedica.SecureSettings.Sources;
 using Informedica.SecureSettings.Testing;
 using StructureMap;
@@ -53,21 +54,23 @@ namespace scsm
 
         private static SecureSettingSource GetSecureSettingsManager()
         {
-            if (_source == null) _source = new SecureSettingSource(GetRegisteredSource());
+            if (_source == null)
+                _source = new SecureSettingSource(GetRegisteredSource(), new SecretKeyManager(),
+                                                  CryptographyFactory.GetCryptography());
             return _source;
         }
 
-        private static ISettingSource GetRegisteredSource()
+        private static SettingSource GetRegisteredSource()
         {
             try
             {
                 ObjectFactory.Initialize(x => { x.UseDefaultStructureMapConfigFile = true; });
-                return ObjectFactory.GetInstance<ISettingSource>();
+                return ObjectFactory.GetInstance<SettingSource>();
 
             }
             catch (Exception)
             {
-                return new TestSettingSource();
+                return MyTestSettingSource.CreateMySettingSource();
             }
         }
 
