@@ -49,6 +49,7 @@
     </CodeAnalysisDependentAssemblyPaths>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CryptographyAdapterShould.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SettingsSourceShould.cs" />
     <Compile Include="SecureSettingSourceShould.cs" />

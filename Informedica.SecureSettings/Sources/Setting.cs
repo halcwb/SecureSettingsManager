@@ -22,7 +22,7 @@ namespace Informedica.SecureSettings.Sources
         }
 
         public readonly string Name;
-        public readonly string Value;
+        public string Value;
         public readonly string Type;
         public readonly bool IsEncrypted;
     }
