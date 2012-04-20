@@ -218,12 +218,12 @@ namespace Informedica.SecureSettings.Sources
 
         public void Remove(string setting)
         {
-            throw new NotImplementedException();
+            RemoveSetting(this.SingleOrDefault(s => s.Name == setting));
         }
 
         public void Remove(Setting setting)
         {
-            throw new NotImplementedException();
+            _source.RemoveSetting(setting);
         }
 
         [Obsolete]
@@ -250,7 +250,7 @@ namespace Informedica.SecureSettings.Sources
 
         public Setting ReadSetting(Enum settingType, string settingName)
         {
-            return _source.ReadSetting(settingType, settingName);
+            return _source.ReadSetting(settingType, CryptoGrapher.Encrypt(settingName));
         }
 
         public void WriteSecure(Setting setting)
@@ -293,7 +293,12 @@ namespace Informedica.SecureSettings.Sources
         /// <filterpriority>1</filterpriority>
         public IEnumerator<Setting> GetEnumerator()
         {
-            return _settings.GetEnumerator();
+            var sets = new List<Setting>();
+            foreach (var setting in _source)
+            {
+                sets.Add(new Setting(_cryptographer.Decrypt(setting.Name), _cryptographer.Decrypt(setting.Value), setting.Type, true));
+            }
+            return sets.GetEnumerator();
         }
 
         /// <summary>
