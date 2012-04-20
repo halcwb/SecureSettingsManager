@@ -2,14 +2,17 @@ namespace Informedica.SecureSettings.Cryptographers
 {
     public class SecretKeyManager
     {
+        //ToDo Set string to secret key, have to implement registry version
+        private string _key = "Some secret key";
+
         public string GetKey()
         {
-            throw new System.NotImplementedException();
+            return _key;
         }
 
         public void SetKey(string secret)
         {
-            throw new System.NotImplementedException();
+            _key = secret;
         }
     }
 }

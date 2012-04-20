@@ -44,6 +44,7 @@
     <Compile Include="CommandLine\CommandRunner.cs" />
     <Compile Include="Cryptographers\CryptoGraphy.cs" />
     <Compile Include="Cryptographers\CryptographyAdapter.cs" />
+    <Compile Include="Cryptographers\CryptographyFactory.cs" />
     <Compile Include="Cryptographers\Hash.cs" />
     <Compile Include="Cryptographers\SecretKeyManager.cs" />
     <Compile Include="Cryptographers\SymCryptography.cs" />

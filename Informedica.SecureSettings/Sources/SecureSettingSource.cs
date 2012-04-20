@@ -170,6 +170,7 @@ namespace Informedica.SecureSettings.Sources
             return crypt.Encrypt(value);
         }
 
+        [Obsolete]
         private SymCryptography GetCryptography()
         {
             var crypt = new SymCryptography {Key = GetSecret()};
