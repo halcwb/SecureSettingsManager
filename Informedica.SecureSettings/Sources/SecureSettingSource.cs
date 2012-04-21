@@ -1,14 +1,12 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using Informedica.SecureSettings.Cryptographers;
 
 namespace Informedica.SecureSettings.Sources
 {
     public class SecureSettingSource: ISettingSource
     {
-        private const string KeyName = "SecureSettingsManager";
         public static readonly string SecureMarker = "[Secure]";
         private readonly SettingSource _source;
         private readonly SecretKeyManager _secretKeyManager;
@@ -26,25 +24,9 @@ namespace Informedica.SecureSettings.Sources
             return name.Replace(SecureMarker, string.Empty);
         }
 
-        public void RemoveSetting(Setting setting)
-        {
-            _source.RemoveSetting(setting);
-        }
-
-        public void Remove(string setting)
-        {
-            RemoveSetting(this.SingleOrDefault(s => s.Name == setting));
-        }
-
         public void Remove(Setting setting)
         {
             _source.RemoveSetting(setting);
-        }
-
-
-        public void WriteSetting(Setting setting)
-        {
-            _source.WriteSetting(setting);
         }
 
         public string GetSecretKey()
@@ -57,23 +39,19 @@ namespace Informedica.SecureSettings.Sources
             _secretKeyManager.SetKey(secret);
         }
 
-        public Setting ReadSetting(Enum settingType, string settingName)
-        {
-            return _source.ReadSetting(settingType, CryptoGrapher.Encrypt(settingName));
-        }
-
         public void WriteSecure(Setting setting)
         {
             var encrypted = new Setting(CryptoGrapher.Encrypt(setting.Name),
                                         CryptoGrapher.Encrypt(setting.Value), 
                                         setting.Type, 
                                         true);
-            WriteSetting(encrypted);
+
+            _source.WriteSetting(encrypted);
         }
 
         public Setting ReadSecure(Enum settingType, string settingName)
         {
-            var setting = ReadSetting(settingType, settingName);
+            var setting = _source.ReadSetting(settingType, _cryptographer.Encrypt(settingName));
             var decrypted = new Setting(RemoveSecureMarker(CryptoGrapher.Decrypt(setting.Name)),
                                         CryptoGrapher.Decrypt(setting.Value),
                                         setting.Type, 

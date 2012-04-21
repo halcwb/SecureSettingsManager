@@ -41,7 +41,7 @@ namespace Informedica.SecureSettings.Tests
             _crypt = Isolate.Fake.Instance<CryptoGraphy>();
             var markedname = SecureSettingSource.SecureMarker + _settingName;
             Isolate.WhenCalled(() => _crypt.Encrypt(_settingName)).WillReturn(markedname);
-            Isolate.WhenCalled(() => _crypt.Decrypt(_settingName)).WillReturn(markedname);
+            Isolate.WhenCalled(() => _crypt.Decrypt(_settingName)).WillReturn(_settingName);
 
             _secureSource = new SecureSettingSource(_source, _secretKeyManager, _crypt);
         }
@@ -83,8 +83,8 @@ namespace Informedica.SecureSettings.Tests
         {
             try
             {
-                _secureSource.WriteSetting(_fakeSetting);
-                Isolate.Verify.WasCalledWithExactArguments(() => _source.WriteSetting(_fakeSetting));
+                _secureSource.WriteSecure(_fakeSetting);
+                Isolate.Verify.WasCalledWithAnyArguments(() => _source.WriteSetting(_fakeSetting));
 
             }
             catch (Exception e)
@@ -99,9 +99,9 @@ namespace Informedica.SecureSettings.Tests
         {
             try
             {
-                _secureSource.ReadSetting(_app, _settingName);
+                _secureSource.ReadSecure(_app, _settingName);
                 var encrypted = _crypt.Encrypt(_settingName);
-                Isolate.Verify.WasCalledWithExactArguments(() => _source.ReadSetting(_app, encrypted));
+                Isolate.Verify.WasCalledWithAnyArguments(() => _source.ReadSetting(_app, encrypted));
             }
             catch (Exception e)
             {
@@ -113,8 +113,8 @@ namespace Informedica.SecureSettings.Tests
         [TestMethod]
         public void ReturnASettingWithTheSameNameAndValueAfterWritingThatSettingAndReadingIt()
         {
-            _secureSource.WriteSetting(_fakeSetting);
-            var setting = _secureSource.ReadSetting(_app, _fakeSetting.Name);
+            _secureSource.WriteSecure(_fakeSetting);
+            var setting = _secureSource.ReadSecure(_app, _fakeSetting.Name);
 
             Assert.AreEqual(_fakeSetting.Name, setting.Name);
             Assert.AreEqual(_fakeSetting.Value, setting.Value);
@@ -137,7 +137,7 @@ namespace Informedica.SecureSettings.Tests
         {
             try
             {
-                _secureSource.RemoveSetting(_fakeSetting);
+                _secureSource.Remove(_fakeSetting);
                 Isolate.Verify.WasCalledWithExactArguments(() => _source.RemoveSetting(_fakeSetting));
             }
             catch (Exception e)
