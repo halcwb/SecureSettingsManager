@@ -1,4 +1,5 @@
-﻿using Informedica.SecureSettings.Cryptographers;
+﻿using System;
+using Informedica.SecureSettings.Cryptographers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using TypeMock.ArrangeActAssert;
 
@@ -7,8 +8,72 @@ namespace Informedica.SecureSettings.Tests
     [TestClass]
     public class CryptographyAdapterShould
     {
-        private CryptographyAdapter _adapter;
+        private CryptoGraphy _adapter;
         private SymCryptography _symCrypt;
+
+        [Isolated]
+        [TestMethod]
+        public void ReturnTheOriginalValueWhenDecryptionDoesNotSucceed()
+        {
+            _adapter = CryptographyFactory.GetCryptography();
+            _adapter.SetKey("Some secret key");
+
+            var value = "UnobtrusiveJavaScriptEnabled=";
+            var decrypted = _adapter.Decrypt(value);
+
+            Assert.AreEqual(value, decrypted);
+        }
+
+
+        [Isolated]
+        [TestMethod]
+        public void ReturnTheOriginalValueWhenDecryptionReturnsANullValue()
+        {
+            SetupIsolatedCryptographyAdapter();
+            var value = "UnobtrusiveJavaScriptEnabled";
+            Isolate.WhenCalled(() => _symCrypt.Decrypt(value)).WillReturn(null);
+            _adapter.SetKey("Some secret key");
+
+            var decrypted = _adapter.Decrypt(value);
+
+            Assert.AreEqual(value, decrypted);
+        }
+
+        [Isolated]
+        [TestMethod]
+        public void ThrowAnErrorWhenEncryptWithoutAKey()
+        {
+            SetupIsolatedCryptographyAdapter();
+
+            try
+            {
+                _adapter.Encrypt("value");
+                Assert.Fail("Error was not thrown whan encrypting with an empty key");
+
+            }
+            catch (Exception e)
+            {
+                Assert.IsNotInstanceOfType(e, typeof(AssertFailedException));
+            }
+        }
+
+        [Isolated]
+        [TestMethod]
+        public void ThrowAnErrorWhenDecryptWithoutAKey()
+        {
+            SetupIsolatedCryptographyAdapter();
+
+            try
+            {
+                _adapter.Decrypt("value");
+                Assert.Fail("Error was not thrown whan encrypting with an empty key");
+
+            }
+            catch (Exception e)
+            {
+                Assert.IsNotInstanceOfType(e, typeof(AssertFailedException));
+            }
+        }
 
         [Isolated]
         [TestMethod]
@@ -24,7 +89,7 @@ namespace Informedica.SecureSettings.Tests
                 Assert.IsFalse(encrypted == "Test");
                 Isolate.Verify.WasCalledWithAnyArguments(() => _symCrypt.Key = null);
             }
-            catch (System.Exception e)
+            catch (Exception e)
             {
                 Assert.Fail(e.ToString());
             }

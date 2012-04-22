@@ -12,8 +12,10 @@ namespace Informedica.SecureSettings.Sources
     {
         public Setting(string name, string value, string type, bool encrypted)
         {
-            if (string.IsNullOrWhiteSpace(name)) throw new StringCannotBeNullOrWhiteSpaceException("Name of setting");
-            if (string.IsNullOrWhiteSpace(type)) throw new StringCannotBeNullOrWhiteSpaceException("Type of setting");
+            if (string.IsNullOrWhiteSpace(name)) 
+                throw new StringCannotBeNullOrWhiteSpaceException("Name of setting");
+            if (string.IsNullOrWhiteSpace(type)) 
+                throw new StringCannotBeNullOrWhiteSpaceException("Type of setting");
 
             Name = name;
             Value = value;
@@ -22,7 +24,7 @@ namespace Informedica.SecureSettings.Sources
         }
 
         public readonly string Name;
-        public string Value;
+        public readonly string Value;
         public readonly string Type;
         public readonly bool IsEncrypted;
     }

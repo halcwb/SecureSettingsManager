@@ -83,7 +83,15 @@ namespace Informedica.SecureSettings.Sources
             var sets = new List<Setting>();
             foreach (var setting in _source)
             {
-                sets.Add(new Setting(_cryptographer.Decrypt(setting.Name), _cryptographer.Decrypt(setting.Value), setting.Type, true));
+                try
+                {
+                    sets.Add(new Setting(CryptoGrapher.Decrypt(setting.Name), CryptoGrapher.Decrypt(setting.Value), setting.Type, true));
+
+                }
+                catch (Exception)
+                {
+                    throw;
+                }
             }
             return sets.GetEnumerator();
         }

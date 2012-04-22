@@ -15,14 +15,38 @@ namespace Informedica.SecureSettings.Cryptographers
 
         public override string Encrypt(string value)
         {
+            CheckIfKeyIsNullOrWhiteSpace();
             _symCrypt.Key = Key;
-            return _symCrypt.Encrypt(value);
+            try
+            {
+                return _symCrypt.Encrypt(value);
+
+            }
+            catch (Exception)
+            {
+                return value;
+            }
+        }
+
+        private void CheckIfKeyIsNullOrWhiteSpace()
+        {
+            if (string.IsNullOrWhiteSpace(Key)) throw new Exception("Key cannot be null");
         }
 
         public override string Decrypt(string value)
         {
+            CheckIfKeyIsNullOrWhiteSpace();
             _symCrypt.Key = Key;
-            return _symCrypt.Decrypt(value);
+
+            try
+            {
+                return _symCrypt.Decrypt(value) ?? value;
+
+            }
+            catch (Exception)
+            {
+                return value;
+            }
         }
 
         #endregion
