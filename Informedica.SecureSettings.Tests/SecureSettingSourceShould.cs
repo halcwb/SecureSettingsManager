@@ -83,7 +83,7 @@ namespace Informedica.SecureSettings.Tests
         {
             try
             {
-                _secureSource.WriteSecure(_fakeSetting);
+                _secureSource.WriteSetting(_fakeSetting);
                 Isolate.Verify.WasCalledWithAnyArguments(() => _source.WriteSetting(_fakeSetting));
 
             }
@@ -99,7 +99,7 @@ namespace Informedica.SecureSettings.Tests
         {
             try
             {
-                _secureSource.ReadSecure(_app, _settingName);
+                _secureSource.ReadSetting(_app, _settingName);
                 var encrypted = _crypt.Encrypt(_settingName);
                 Isolate.Verify.WasCalledWithAnyArguments(() => _source.ReadSetting(_app, encrypted));
             }
@@ -113,8 +113,8 @@ namespace Informedica.SecureSettings.Tests
         [TestMethod]
         public void ReturnASettingWithTheSameNameAndValueAfterWritingThatSettingAndReadingIt()
         {
-            _secureSource.WriteSecure(_fakeSetting);
-            var setting = _secureSource.ReadSecure(_app, _fakeSetting.Name);
+            _secureSource.WriteSetting(_fakeSetting);
+            var setting = _secureSource.ReadSetting(_app, _fakeSetting.Name);
 
             Assert.AreEqual(_fakeSetting.Name, setting.Name);
             Assert.AreEqual(_fakeSetting.Value, setting.Value);
@@ -125,8 +125,8 @@ namespace Informedica.SecureSettings.Tests
         [TestMethod]
         public void ReturnASettingWithTheSameNameAfterSecureWritingThatSettingAndReadingIt()
         {
-            _secureSource.WriteSecure(_fakeSetting);
-            var setting = _secureSource.ReadSecure(_app, _fakeSetting.Name);
+            _secureSource.WriteSetting(_fakeSetting);
+            var setting = _secureSource.ReadSetting(_app, _fakeSetting.Name);
 
             Assert.AreEqual(_fakeSetting.Name, setting.Name);
         }
@@ -137,7 +137,7 @@ namespace Informedica.SecureSettings.Tests
         {
             try
             {
-                _secureSource.Remove(_fakeSetting);
+                _secureSource.RemoveSetting(_fakeSetting);
                 Isolate.Verify.WasCalledWithExactArguments(() => _source.RemoveSetting(_fakeSetting));
             }
             catch (Exception e)
@@ -152,7 +152,7 @@ namespace Informedica.SecureSettings.Tests
         {
             try
             {
-                _secureSource.WriteSecure(_fakeSetting);
+                _secureSource.WriteSetting(_fakeSetting);
                 Isolate.Verify.WasCalledWithExactArguments(() => _crypt.Encrypt(_fakeSetting.Name));
             }
             catch (Exception e)
@@ -167,7 +167,7 @@ namespace Informedica.SecureSettings.Tests
         {
             try
             {
-                _secureSource.ReadSecure(_app, _settingName);
+                _secureSource.ReadSetting(_app, _settingName);
                 Isolate.Verify.WasCalledWithExactArguments(() => _crypt.Decrypt(_settingName));
             }
             catch (Exception e)
@@ -182,7 +182,7 @@ namespace Informedica.SecureSettings.Tests
         {
             try
             {
-                _secureSource.ReadSecure(_app, _settingName);
+                _secureSource.ReadSetting(_app, _settingName);
                 Isolate.Verify.WasCalledWithExactArguments(() => _crypt.SetKey(_key));
             }
             catch (Exception e)

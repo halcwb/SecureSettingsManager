@@ -11,6 +11,6 @@ namespace Informedica.SecureSettings.Sources
     /// </summary>
     public interface ISettingSource : IEnumerable<Setting>
     {
-        void Remove(Setting setting);
+        void RemoveSetting(Setting setting);
     }
 }

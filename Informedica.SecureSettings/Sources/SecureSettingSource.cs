@@ -24,7 +24,7 @@ namespace Informedica.SecureSettings.Sources
             return name.Replace(SecureMarker, string.Empty);
         }
 
-        public void Remove(Setting setting)
+        public void RemoveSetting(Setting setting)
         {
             _source.RemoveSetting(setting);
         }
@@ -39,7 +39,7 @@ namespace Informedica.SecureSettings.Sources
             _secretKeyManager.SetKey(secret);
         }
 
-        public void WriteSecure(Setting setting)
+        public void WriteSetting(Setting setting)
         {
             var encrypted = new Setting(CryptoGrapher.Encrypt(setting.Name),
                                         CryptoGrapher.Encrypt(setting.Value), 
@@ -49,7 +49,7 @@ namespace Informedica.SecureSettings.Sources
             _source.WriteSetting(encrypted);
         }
 
-        public Setting ReadSecure(Enum settingType, string settingName)
+        public Setting ReadSetting(Enum settingType, string settingName)
         {
             var setting = _source.ReadSetting(settingType, _cryptographer.Encrypt(settingName));
             var decrypted = new Setting(RemoveSecureMarker(CryptoGrapher.Decrypt(setting.Name)),
