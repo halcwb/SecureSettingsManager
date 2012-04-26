@@ -1,6 +1,6 @@
 using System;
 
-namespace Informedica.SecureSettings.CommandLine
+namespace scsm
 {
     public class CommandRunner
     {

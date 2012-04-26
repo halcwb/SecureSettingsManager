@@ -40,8 +40,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CommandLine\AliasAttribute.cs" />
-    <Compile Include="CommandLine\CommandRunner.cs" />
     <Compile Include="Cryptographers\CryptoGraphy.cs" />
     <Compile Include="Cryptographers\CryptographyAdapter.cs" />
     <Compile Include="Cryptographers\CryptographyFactory.cs" />

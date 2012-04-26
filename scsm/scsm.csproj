@@ -47,6 +47,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AliasAttribute.cs" />
+    <Compile Include="ArgumentProcessor.cs" />
+    <Compile Include="CommandRunner.cs" />
     <Compile Include="SecureSettingsManager.cs" />
     <Compile Include="Testing.cs" />
     <Compile Include="Program.cs" />

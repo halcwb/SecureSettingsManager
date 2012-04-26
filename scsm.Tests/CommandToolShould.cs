@@ -1,4 +1,5 @@
-﻿using Informedica.SecureSettings.CommandLine;
+﻿using System;
+using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using StructureMap;
 using TypeMock.ArrangeActAssert;
@@ -8,6 +9,26 @@ namespace scsm.Tests
     [TestClass]
     public class CommandToolShould
     {
+        private ArgumentProcessor<SecureSettingsManager> _processor;
+
+
+        private static ArgumentProcessor<SecureSettingsManager> GetProcessor()
+        {
+            return new ArgumentProcessor<SecureSettingsManager>();
+        }
+
+        [Isolated]
+        [TestMethod]
+        public void UseAnArgumentsProcessorToRunTheCommands()
+        {
+            IList<String> fakeIList = Isolate.Fake.Instance<IList<String>>();
+            _processor = GetProcessor();
+            Isolate.WhenCalled(() => _processor.ProcessArguments(fakeIList)).WillReturn("");
+            Isolate.WhenCalled(() => _processor.ListOptions()).WillReturn("Argument processor has been called");
+
+            Assert.AreEqual("Argument processor has been called", new CommandRunner().GetCommandResult(""));
+        }
+
 
         [TestMethod]
         public void UseASecureSettingsSourceManagerToSetASecretKey()
