@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using StructureMap;
 
 namespace scsm
 {
@@ -15,14 +14,10 @@ namespace scsm
             _targetObject = target;
         }
 
-        public ArgumentProcessor() { }
-
-
         public string ProcessArguments(IList<string> args)
         {
             if (!args.Any()) return ListOptions();
 
-            var manager = GetTargetObject();
             var result = "";
 
             for (var i = 0; i < args.Count(); i++)
@@ -31,7 +26,7 @@ namespace scsm
                 var numParams = Enumerable.Count(method.GetParameters());
 
                 // ReSharper disable CoVariantArrayConversion
-                result += CallMethod(manager, method, args.Skip(i + 1).Take(numParams).ToArray());
+                result += CallMethod(_targetObject, method, args.Skip(i + 1).Take(numParams).ToArray());
                 // ReSharper restore CoVariantArrayConversion
 
                 i += numParams;
@@ -40,24 +35,6 @@ namespace scsm
             return result;
         }
 
-        private T GetTargetObject()
-        {
-            return _targetObject ?? (_targetObject = GetRegisteredTargetObject());
-        }
-
-        private static T GetRegisteredTargetObject()
-        {
-            try
-            {
-                ObjectFactory.Initialize(x => { x.UseDefaultStructureMapConfigFile = true; });
-                return ObjectFactory.GetInstance<T>();
-
-            }
-            catch (Exception)
-            {
-                throw new Exception("No target object registered");
-            }
-        }
 
         public string ListOptions()
         {
@@ -105,6 +82,7 @@ namespace scsm
         {
             return method.GetCustomAttributes(typeof(AliasAttribute), true).Any(a => ((AliasAttribute)a).Alias == command);
         }
+
     }
 
 }

@@ -1,15 +1,16 @@
 ﻿using System;
+using StructureMap;
 
 namespace scsm
 {
-    class Program
+    public class Program
     {
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
             var result = "";
             try
             {
-                result = (new ArgumentProcessor<SecureSettingsManager>()).ProcessArguments(args);
+                result = (new ArgumentProcessor<SecureSettingsManager>(GetSecureSettingsManager())).ProcessArguments(args);
             }
             catch (Exception e)
             {
@@ -17,6 +18,20 @@ namespace scsm
             }
 
             Console.WriteLine(result);
+        }
+
+        private static SecureSettingsManager GetSecureSettingsManager()
+        {
+            try
+            {
+                ObjectFactory.Initialize(x => { x.UseDefaultStructureMapConfigFile = true; });
+                return ObjectFactory.GetInstance<SecureSettingsManager>();
+
+            }
+            catch (Exception)
+            {
+                return new SecureSettingsManager();
+            }
         }
     }
 }
