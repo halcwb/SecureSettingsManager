@@ -1,5 +1,7 @@
 ﻿using Informedica.SecureSettings.CommandLine;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using StructureMap;
+using TypeMock.ArrangeActAssert;
 
 namespace scsm.Tests
 {
@@ -8,10 +10,13 @@ namespace scsm.Tests
     {
 
         [TestMethod]
-        public void BeAbleToRunMethodByAlias()
+        public void UseASecureSettingsSourceManagerToSetASecretKey()
         {
             var runner = new CommandRunner();
-            Assert.IsTrue(runner.RunOptionWithArguments("set.setting", "testsetting \"this is a test setting\""));
+            SecureSettingsManager fakeManager = new TestManager();
+            ObjectFactory.Inject(typeof(SecureSettingsManager), fakeManager);
+
+            Assert.AreEqual("method was called", runner.GetCommandResult("set.secret this is a secret"));
         }
 
         [TestMethod]

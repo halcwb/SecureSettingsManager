@@ -47,9 +47,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="SecureSettingsManager.cs" />
     <Compile Include="Testing.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Informedica.SecureSettings\Informedica.SecureSettings.csproj">

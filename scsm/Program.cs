@@ -2,18 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Informedica.SecureSettings;
 using Informedica.SecureSettings.CommandLine;
-using Informedica.SecureSettings.Cryptographers;
-using Informedica.SecureSettings.Sources;
-using Informedica.SecureSettings.Testing;
 using StructureMap;
 
 namespace scsm
 {
     class Program
     {
-        private static SecureSettingSource _source;
+        private static SecureSettingsManager _source;
 
         static void Main(string[] args)
         {
@@ -52,25 +48,24 @@ namespace scsm
             return result;
         }
 
-        private static SecureSettingSource GetSecureSettingsManager()
+        private static SecureSettingsManager GetSecureSettingsManager()
         {
             if (_source == null)
-                _source = new SecureSettingSource(GetRegisteredSource(), new SecretKeyManager(),
-                                                  CryptographyFactory.GetCryptography());
+                _source = GetRegisteredSettingsManager();
             return _source;
         }
 
-        private static SettingSource GetRegisteredSource()
+        private static SecureSettingsManager GetRegisteredSettingsManager()
         {
             try
             {
                 ObjectFactory.Initialize(x => { x.UseDefaultStructureMapConfigFile = true; });
-                return ObjectFactory.GetInstance<SettingSource>();
+                return ObjectFactory.GetInstance<SecureSettingsManager>();
 
             }
             catch (Exception)
             {
-                return MyTestSettingSource.CreateMySettingSource();
+                return new SecureSettingsManager();
             }
         }
 
@@ -93,7 +88,7 @@ namespace scsm
             return method.GetCustomAttributes(typeof(AliasAttribute), true).Any();
         }
 
-        private static string CallMethod(SecureSettingSource manager, MethodInfo method, object[] parameters)
+        private static string CallMethod(SecureSettingsManager manager, MethodInfo method, object[] parameters)
         {
             try
             {
@@ -113,7 +108,7 @@ namespace scsm
 
         private static Type GetSecureSettingsManagerType()
         {
-            return typeof(SecureSettingSource);
+            return typeof(SecureSettingsManager);
         }
 
         private static bool HasAliasAttributeWithValue(MethodInfo method, string command)
