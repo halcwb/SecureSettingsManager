@@ -17,15 +17,43 @@ namespace Informedica.SecureSettings.Sources
             if (string.IsNullOrWhiteSpace(type)) 
                 throw new StringCannotBeNullOrWhiteSpaceException("Type of setting");
 
-            Name = name;
+            Key = name;
             Value = value;
             Type = type;
             IsEncrypted = encrypted;
         }
 
-        public readonly string Name;
+        public readonly string Key;
         public readonly string Value;
         public readonly string Type;
         public readonly bool IsEncrypted;
+
+        public string Machine
+        {
+            get { return TryGetArrayAtIndex(0); }
+        }
+
+        public string Environment
+        {
+            get { return TryGetArrayAtIndex(1); }
+        }
+
+        public string Name
+        {
+            get { return TryGetArrayAtIndex(2); }
+        }
+
+        private string TryGetArrayAtIndex(int index)
+        {
+            try
+            {
+                return Key.Split('.')[index];
+
+            }
+            catch (System.Exception)
+            {
+                return string.Empty;
+            }
+        }
     }
 }

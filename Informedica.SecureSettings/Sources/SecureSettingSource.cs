@@ -41,7 +41,7 @@ namespace Informedica.SecureSettings.Sources
 
         public void WriteSetting(Setting setting)
         {
-            var encrypted = new Setting(CryptoGrapher.Encrypt(setting.Name),
+            var encrypted = new Setting(CryptoGrapher.Encrypt(setting.Key),
                                         CryptoGrapher.Encrypt(setting.Value), 
                                         setting.Type, 
                                         true);
@@ -74,7 +74,7 @@ namespace Informedica.SecureSettings.Sources
             {
                 try
                 {
-                    sets.Add(new Setting(RemoveSecureMarker(CryptoGrapher.Decrypt(setting.Name)), CryptoGrapher.Decrypt(setting.Value), setting.Type, true));
+                    sets.Add(new Setting(RemoveSecureMarker(CryptoGrapher.Decrypt(setting.Key)), CryptoGrapher.Decrypt(setting.Value), setting.Type, true));
 
                 }
                 catch (Exception)
@@ -108,7 +108,6 @@ namespace Informedica.SecureSettings.Sources
 
         public void Clear()
         {
-            throw new NotImplementedException();
         }
 
         public bool Contains(Setting item)
@@ -118,7 +117,12 @@ namespace Informedica.SecureSettings.Sources
 
         public void CopyTo(Setting[] array, int arrayIndex)
         {
-            throw new NotImplementedException();
+            var i = 0;
+            foreach (var setting in this)
+            {
+                array[i] = setting;
+                i++;
+            }
         }
 
         public bool Remove(Setting item)
@@ -128,7 +132,7 @@ namespace Informedica.SecureSettings.Sources
 
         public int Count
         {
-            get { throw new NotImplementedException(); }
+            get { return _source.Count; }
         }
 
         public bool IsReadOnly

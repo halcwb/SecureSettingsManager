@@ -87,7 +87,7 @@ namespace Informedica.SecureSettings.Tests
             Isolate.WhenCalled(() => _source.GetEnumerator()).CallOriginal();
             try
             {
-                _secureSource.SingleOrDefault(s => s.Type == _app.ToString() && s.Name == _settingName);
+                _secureSource.SingleOrDefault(s => s.Type == _app.ToString() && s.Key == _settingName);
                 Isolate.Verify.WasCalledWithAnyArguments(() => _source.GetEnumerator());
             }
             catch (Exception e)
@@ -103,7 +103,7 @@ namespace Informedica.SecureSettings.Tests
             _secureSource.Add(_fakeSetting);
             var setting = ReadSetting();
 
-            Assert.AreEqual(_fakeSetting.Name, setting.Name);
+            Assert.AreEqual(_fakeSetting.Key, setting.Key);
             Assert.AreEqual(_fakeSetting.Value, setting.Value);
             Assert.AreEqual(_fakeSetting.Type, setting.Type);
         }
@@ -115,7 +115,7 @@ namespace Informedica.SecureSettings.Tests
             _secureSource.Add(_fakeSetting);
             var setting = ReadSetting();
 
-            Assert.AreEqual(_fakeSetting.Name, setting.Name);
+            Assert.AreEqual(_fakeSetting.Key, setting.Key);
         }
 
         [Isolated]
@@ -140,7 +140,7 @@ namespace Informedica.SecureSettings.Tests
             try
             {
                 _secureSource.Add(_fakeSetting);
-                Isolate.Verify.WasCalledWithExactArguments(() => _crypt.Encrypt(_fakeSetting.Name));
+                Isolate.Verify.WasCalledWithExactArguments(() => _crypt.Encrypt(_fakeSetting.Key));
             }
             catch (Exception e)
             {
@@ -181,7 +181,7 @@ namespace Informedica.SecureSettings.Tests
 
         private Setting ReadSetting()
         {
-            return _secureSource.SingleOrDefault(s => s.Type == _app.ToString() && s.Name == _fakeSetting.Name);
+            return _secureSource.SingleOrDefault(s => s.Type == _app.ToString() && s.Key == _fakeSetting.Key);
         }
     }
 }

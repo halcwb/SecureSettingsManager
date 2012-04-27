@@ -107,7 +107,12 @@ namespace Informedica.SecureSettings.Sources
 
         public void CopyTo(Setting[] array, int arrayIndex)
         {
-            throw new NotImplementedException();
+            var i = 0;
+            foreach (var setting in this)
+            {
+                array[i] = setting;
+                i++;
+            }
         }
 
         public bool Remove(Setting item)

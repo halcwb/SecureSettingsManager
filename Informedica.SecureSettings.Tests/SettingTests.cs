@@ -13,7 +13,7 @@ namespace Informedica.SecureSettings.Tests
         {
             var test = new Setting("Test", "Test", "Test", false);
 
-            Assert.AreEqual("Test", test.Name);
+            Assert.AreEqual("Test", test.Key);
             Assert.AreEqual("Test", test.Value);
             Assert.AreEqual("Test", test.Type);
             Assert.IsFalse(test.IsEncrypted);
@@ -45,6 +45,30 @@ namespace Informedica.SecureSettings.Tests
             {
                 Assert.IsInstanceOfType(e, typeof(StringCannotBeNullOrWhiteSpaceException), e.ToString());    
             }
+        }
+
+        [TestMethod]
+        public void ThatWhenSettingNameIsMyMachineDotTestEnvironmentDotNameMachineNameIsTestMachine()
+        {
+            var setting = new Setting("MyMachine.TestEnvironment.Name", "TestValue", "Conn", true);
+
+            Assert.AreEqual("MyMachine", setting.Machine);
+        }
+
+        [TestMethod]
+        public void ThatWhenSettingNameIsMyMachineDotTestEnvironmentDotNameEnvironmentIsTestEnvironment()
+        {
+            var setting = new Setting("MyMachine.TestEnvironment.Name", "TestValue", "Conn", true);
+
+            Assert.AreEqual("TestEnvironment", setting.Environment);
+        }
+
+        [TestMethod]
+        public void ThatWhenSettingNameIsMyMachineDotTestEnvironmentDotNameNameIsName()
+        {
+            var setting = new Setting("MyMachine.TestEnvironment.Name", "TestValue", "Conn", true);
+
+            Assert.AreEqual("Name", setting.Name);
         }
 
     }

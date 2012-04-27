@@ -63,7 +63,7 @@ namespace Informedica.SecureSettings.Tests
             var source = MyTestSettingSource.CreateMySettingSource();
            
             source.Add(new Setting("Test", "Test", MyTestSettingSource.SettingTypes.App.ToString(), false));
-            var setting = source.SingleOrDefault(s => s.Type == "App" && s.Name == "Test");
+            var setting = source.SingleOrDefault(s => s.Type == "App" && s.Key == "Test");
             Assert.IsNotNull(setting);
             Assert.AreEqual("Test", setting.Value);
         }
