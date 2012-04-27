@@ -32,6 +32,35 @@ namespace scsm.Tests
             OptionsContains(option);
         }
 
+
+        [TestMethod]
+        public void HaveAnOptionSetConnectionString()
+        {
+            var option = "set.conn";
+            OptionsContains(option);
+        }
+
+        [TestMethod]
+        public void HaveAnOptionGetConnectionString()
+        {
+            var option = "get.conn";
+            OptionsContains(option);
+        }
+
+        [TestMethod]
+        public void HaveAnOptionGetSecret()
+        {
+            var option = "get.secret";
+            OptionsContains(option);
+        }
+
+        [TestMethod]
+        public void HaveAnOptionSetSecret()
+        {
+            var option = "set.secret";
+            OptionsContains(option);
+        }
+
         [TestMethod]
         public void ReturnSuccessAfterSettingAndGettingASetting()
         {

@@ -5,14 +5,14 @@ using Informedica.SecureSettings.Cryptographers;
 
 namespace Informedica.SecureSettings.Sources
 {
-    public class SecureSettingSource: ISettingSource
+    public class SecureSettingSource: ICollection<Setting>
     {
         public static readonly string SecureMarker = "[Secure]";
-        private readonly SettingSource _source;
+        private readonly ICollection<Setting> _source;
         private readonly SecretKeyManager _secretKeyManager;
         private readonly CryptoGraphy _cryptographer;
 
-        public SecureSettingSource(SettingSource source, SecretKeyManager secretKeyManager, CryptoGraphy crypt)
+        public SecureSettingSource(ICollection<Setting> source, SecretKeyManager secretKeyManager, CryptoGraphy crypt)
         {
             _source = source;
             _secretKeyManager = secretKeyManager;
@@ -24,9 +24,9 @@ namespace Informedica.SecureSettings.Sources
             return name.Replace(SecureMarker, string.Empty);
         }
 
-        public void RemoveSetting(Setting setting)
+        public bool RemoveSetting(Setting setting)
         {
-            _source.RemoveSetting(setting);
+            return _source.Remove(setting);
         }
 
         public string GetSecretKey()
@@ -46,18 +46,7 @@ namespace Informedica.SecureSettings.Sources
                                         setting.Type, 
                                         true);
 
-            _source.WriteSetting(encrypted);
-        }
-
-        public Setting ReadSetting(Enum settingType, string settingName)
-        {
-            var setting = _source.ReadSetting(settingType, _cryptographer.Encrypt(settingName));
-            var decrypted = new Setting(RemoveSecureMarker(CryptoGrapher.Decrypt(setting.Name)),
-                                        CryptoGrapher.Decrypt(setting.Value),
-                                        setting.Type, 
-                                        true);
-
-            return decrypted;
+            _source.Add(encrypted);
         }
 
         public CryptoGraphy CryptoGrapher
@@ -85,7 +74,7 @@ namespace Informedica.SecureSettings.Sources
             {
                 try
                 {
-                    sets.Add(new Setting(CryptoGrapher.Decrypt(setting.Name), CryptoGrapher.Decrypt(setting.Value), setting.Type, true));
+                    sets.Add(new Setting(RemoveSecureMarker(CryptoGrapher.Decrypt(setting.Name)), CryptoGrapher.Decrypt(setting.Value), setting.Type, true));
 
                 }
                 catch (Exception)
@@ -106,6 +95,45 @@ namespace Informedica.SecureSettings.Sources
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
+        }
+
+        #endregion
+
+        #region Implementation of ICollection<Setting>
+
+        public void Add(Setting item)
+        {
+            WriteSetting(item);
+        }
+
+        public void Clear()
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Contains(Setting item)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void CopyTo(Setting[] array, int arrayIndex)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Remove(Setting item)
+        {
+            return RemoveSetting(item);
+        }
+
+        public int Count
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        public bool IsReadOnly
+        {
+            get { throw new NotImplementedException(); }
         }
 
         #endregion

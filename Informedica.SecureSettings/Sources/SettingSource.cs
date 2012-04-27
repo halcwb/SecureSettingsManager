@@ -1,14 +1,14 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Informedica.SecureSettings.Sources
 {
-    public abstract class SettingSource: IEnumerable<Setting>
+    public abstract class SettingSource: ICollection<Setting>
     {
         private IDictionary<Enum, Action<Setting>> _writers;
-        private IDictionary<Enum, Func<string, Setting>> _readers;
-        private IDictionary<Enum, Action<Setting>> _removers;
+        private IDictionary<Enum, Func<Setting, bool>> _removers;
 
         protected SettingSource()
         {
@@ -16,17 +16,14 @@ namespace Informedica.SecureSettings.Sources
         }
 
         protected SettingSource(IDictionary<Enum, Action<Setting>> writers, 
-                                IDictionary<Enum, Func<string, Setting>> readers, 
-                                IDictionary<Enum, Action<Setting>> removers)
+                                IDictionary<Enum, Func<Setting, bool>> removers)
         {
             _writers = writers;
-            _readers = readers;
             _removers = removers;
         }
 
         private void Init()
         {
-            RegisterReaders();
             RegisterWriters();
             RegisterRemovers();
         }
@@ -36,42 +33,30 @@ namespace Informedica.SecureSettings.Sources
             get { return _writers ?? (_writers = new Dictionary<Enum, Action<Setting>>()); }
         }
 
-        protected IDictionary<Enum, Func<string, Setting>> Readers
+        protected IDictionary<Enum, Func<Setting, bool>> Removers
         {
-            get { return _readers ?? (_readers = new Dictionary<Enum, Func<string, Setting>>()); }
+            get { return _removers ?? (_removers = new Dictionary<Enum, Func<Setting, bool>>()); }
         }
 
-        protected IDictionary<Enum, Action<Setting>> Removers
-        {
-            get { return _removers ?? (_removers = new Dictionary<Enum, Action<Setting>>()); }
-        }
-
-        public void WriteSetting(Setting setting)
+        private void WriteSetting(Setting setting)
         {
             var method = Writers.ContainsKey(SettingTypeToEnum(setting)) ? Writers[SettingTypeToEnum(setting)]: null;
             if (method == null) throw new MissingMethodException("Method not found to write setting of type: " + setting.Type);
             method.Invoke(setting);
         }
 
-        public Setting ReadSetting(Enum type, string name)
-        {
-            var method = Readers.ContainsKey(type) ? Readers[type] : null;
-            if (method == null) throw new MissingMethodException("Method not found to read setting of type: " + type);
-            return  method.Invoke(name);
-        }
-
-        public void RemoveSetting(Setting setting)
+        private bool RemoveSetting(Setting setting)
         {
             var method = Removers.ContainsKey(SettingTypeToEnum(setting)) ? Removers[SettingTypeToEnum(setting)]: null;
             if (method == null) throw new MissingMethodException("Method not found to remove setting of type: " + setting.Type);
-            method.Invoke(setting);
+            return method.Invoke(setting);
         }
 
         protected abstract Enum SettingTypeToEnum(Setting setting);
 
-        protected abstract void RegisterReaders();
         protected abstract void RegisterWriters();
         protected abstract void RegisterRemovers();
+        public abstract void Save();
 
         #region Implementation of IEnumerable
 
@@ -103,6 +88,43 @@ namespace Informedica.SecureSettings.Sources
 
         #endregion
 
-        public abstract void Save();
+        #region Implementation of ICollection<Setting>
+
+        public void Add(Setting item)
+        {
+            WriteSetting(item);
+        }
+
+        public void Clear()
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Contains(Setting item)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void CopyTo(Setting[] array, int arrayIndex)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Remove(Setting item)
+        {
+            return RemoveSetting(item);
+        }
+
+        public int Count
+        {
+            get { return Settings.Count(); }
+        }
+
+        public bool IsReadOnly
+        {
+            get { return false; }
+        }
+
+        #endregion
     }
 }

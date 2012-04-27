@@ -48,7 +48,6 @@
     <Compile Include="Cryptographers\SymCryptography.cs" />
     <Compile Include="Exceptions\StringCannotBeNullOrWhiteSpaceException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Sources\ISettingSource.cs" />
     <Compile Include="Sources\SecureSettingSource.cs" />
     <Compile Include="Sources\Setting.cs" />
     <Compile Include="Sources\SettingSource.cs" />

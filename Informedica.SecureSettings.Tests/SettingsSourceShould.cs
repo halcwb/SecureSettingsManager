@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Informedica.SecureSettings.Exceptions;
 using Informedica.SecureSettings.Sources;
 using Informedica.SecureSettings.Testing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -24,8 +23,8 @@ namespace Informedica.SecureSettings.Tests
 
             try
             {
-                var source = new MyTestSettingSource(writers, new Dictionary<Enum, Func<string, Setting>>(), new Dictionary<Enum, Action<Setting>>());
-                source.WriteSetting(setting);
+                var source = new MyTestSettingSource(writers, new Dictionary<Enum, Func<Setting, bool>>());
+                source.Add(setting);
                 Isolate.Verify.WasCalledWithExactArguments(() => fakeWriter.Invoke(setting));
 
             }
@@ -35,42 +34,21 @@ namespace Informedica.SecureSettings.Tests
             }
         }
 
-        [Isolated]
-        [TestMethod]
-        public void BeAbleToUseATestTypeSettingReaderToReadASetting()
-        {
-            var readers = new Dictionary<Enum, Func<string, Setting>>();
-            Func<string, Setting> fakeReader = FakeReaders.Read;
-            Isolate.WhenCalled(() => fakeReader.Invoke("Test")).ReturnRecursiveFake();
-            readers.Add(MyTestSettingSource.SettingTypes.App, fakeReader);
-
-            try
-            {
-                var source = new MyTestSettingSource(new Dictionary<Enum, Action<Setting>>(), readers, new Dictionary<Enum, Action<Setting>>());
-                source.ReadSetting(MyTestSettingSource.SettingTypes.App, "Test");
-                Isolate.Verify.WasCalledWithExactArguments(() => fakeReader.Invoke("Test"));
-            }
-            catch (Exception e)
-            {
-                Assert.Fail(e.ToString());
-            }
-        }
 
         [Isolated]
         [TestMethod]
         public void BeAbleToUseATestTypeSettingRemovertoRemoveASetting()
         {
-            var removers = new Dictionary<Enum, Action<Setting>>();
-            Action<Setting> fakeRemover = FakeRemovers.Remove;
+            var removers = new Dictionary<Enum, Func<Setting, bool>>();
+            Func<Setting, bool> fakeRemover = FakeRemovers.Remove;
             var fakeSetting = Isolate.Fake.Instance<Setting>();
-            Isolate.WhenCalled(() => fakeRemover.Invoke(fakeSetting)).IgnoreCall();
+            Isolate.WhenCalled(() => fakeRemover.Invoke(fakeSetting)).WillReturn(false);
             removers.Add(MyTestSettingSource.SettingTypes.App, fakeRemover);
 
-            var source = new MyTestSettingSource(new Dictionary<Enum, Action<Setting>>(),
-                                             new Dictionary<Enum, Func<string, Setting>>(), removers);
+            var source = new MyTestSettingSource(new Dictionary<Enum, Action<Setting>>(), removers);
             try
             {
-                source.RemoveSetting(fakeSetting);
+                source.Remove(fakeSetting);
                 Isolate.Verify.WasCalledWithExactArguments(() => fakeRemover.Invoke(fakeSetting));
             }
             catch (Exception e)
@@ -84,8 +62,10 @@ namespace Informedica.SecureSettings.Tests
         {
             var source = MyTestSettingSource.CreateMySettingSource();
            
-            source.WriteSetting(new Setting("Test", "Test", MyTestSettingSource.SettingTypes.App.ToString(), false));
-            Assert.AreEqual("Test", source.ReadSetting(MyTestSettingSource.SettingTypes.App, "Test").Value);
+            source.Add(new Setting("Test", "Test", MyTestSettingSource.SettingTypes.App.ToString(), false));
+            var setting = source.SingleOrDefault(s => s.Type == "App" && s.Name == "Test");
+            Assert.IsNotNull(setting);
+            Assert.AreEqual("Test", setting.Value);
         }
 
         [TestMethod]
@@ -94,10 +74,10 @@ namespace Informedica.SecureSettings.Tests
             var source = MyTestSettingSource.CreateMySettingSource();
             Assert.IsFalse(source.Any());
 
-            source.WriteSetting(new Setting("Test", "Test", MyTestSettingSource.SettingTypes.App.ToString(), false));
+            source.Add(new Setting("Test", "Test", MyTestSettingSource.SettingTypes.App.ToString(), false));
             var count = source.Count();
 
-            source.WriteSetting(new Setting("Test", "Test", MyTestSettingSource.SettingTypes.Conn.ToString(), false));
+            source.Add(new Setting("Test", "Test", MyTestSettingSource.SettingTypes.Conn.ToString(), false));
             Assert.AreEqual(count + 1, source.Count());
         }
         
@@ -106,10 +86,10 @@ namespace Informedica.SecureSettings.Tests
         {
             var source = MyTestSettingSource.CreateMySettingSource();
             var setting = new Setting("Test", "Test", MyTestSettingSource.SettingTypes.App.ToString(), false);
-            source.WriteSetting(setting);
+            source.Add(setting);
 
             var count = source.Count();
-            source.RemoveSetting(setting);
+            source.Remove(setting);
 
             Assert.AreEqual(count -1 , source.Count());
         }
@@ -123,7 +103,7 @@ namespace Informedica.SecureSettings.Tests
 
             try
             {
-                source.WriteSetting(setting);
+                source.Add(setting);
 
             }
             catch (Exception e)
@@ -134,24 +114,18 @@ namespace Informedica.SecureSettings.Tests
 
         private static MyTestSettingSource SetupSettingSourceWithoutWritersOrReadersOrRemovers()
         {
-            var fakeIDictionary2 = Isolate.Fake.Instance<IDictionary<Enum, Action<Setting>>>();
-            var fakeIDictionary1 = Isolate.Fake.Instance<IDictionary<Enum, Func<String, Setting>>>();
-            var fakeIDictionary = Isolate.Fake.Instance<IDictionary<Enum, Action<Setting>>>();
-            var source = new MyTestSettingSource(fakeIDictionary, fakeIDictionary1, fakeIDictionary2);
+            var fakeRemovers = Isolate.Fake.Instance<IDictionary<Enum, Func<Setting, bool>>>();
+            var fakeWriters = Isolate.Fake.Instance<IDictionary<Enum, Action<Setting>>>();
+            var source = new MyTestSettingSource(fakeWriters, fakeRemovers);
             return source;
         }
     }
 
     public static class FakeRemovers
     {
-        public static void Remove(Setting setting) {}
-    }
-
-    public static class FakeReaders
-    {
-        public static Setting Read(string name)
+        public static bool Remove(Setting setting)
         {
-            return null;
+            return true;
         }
     }
 
