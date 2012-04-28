@@ -92,12 +92,13 @@ namespace Informedica.SecureSettings.Sources
 
         public void Add(Setting item)
         {
+            var setting = Settings.SingleOrDefault(s => s.Key == item.Key);
+            if (setting != null) Remove(setting);
             WriteSetting(item);
         }
 
         public void Clear()
         {
-            throw new NotImplementedException();
         }
 
         public bool Contains(Setting item)
@@ -117,7 +118,7 @@ namespace Informedica.SecureSettings.Sources
 
         public bool Remove(Setting item)
         {
-            return RemoveSetting(item);
+            return Settings.Any(s => s.Key == item.Key) && RemoveSetting(item);
         }
 
         public int Count

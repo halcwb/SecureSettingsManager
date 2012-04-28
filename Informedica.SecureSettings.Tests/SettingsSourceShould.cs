@@ -42,12 +42,14 @@ namespace Informedica.SecureSettings.Tests
             var removers = new Dictionary<Enum, Func<Setting, bool>>();
             Func<Setting, bool> fakeRemover = FakeRemovers.Remove;
             var fakeSetting = Isolate.Fake.Instance<Setting>();
-            Isolate.WhenCalled(() => fakeRemover.Invoke(fakeSetting)).WillReturn(false);
+            Isolate.WhenCalled(() => fakeRemover.Invoke(fakeSetting)).WillReturn(true);
             removers.Add(MyTestSettingSource.SettingTypes.App, fakeRemover);
 
-            var source = new MyTestSettingSource(new Dictionary<Enum, Action<Setting>>(), removers);
+            var source = new MyTestSettingSource(null, removers);
             try
             {
+                source.Add(fakeSetting);
+                Assert.IsTrue(source.Any(s => s.Key == fakeSetting.Key));
                 source.Remove(fakeSetting);
                 Isolate.Verify.WasCalledWithExactArguments(() => fakeRemover.Invoke(fakeSetting));
             }
@@ -74,10 +76,10 @@ namespace Informedica.SecureSettings.Tests
             var source = MyTestSettingSource.CreateMySettingSource();
             Assert.IsFalse(source.Any());
 
-            source.Add(new Setting("Test", "Test", MyTestSettingSource.SettingTypes.App.ToString(), false));
+            source.Add(new Setting("Test1", "Test", MyTestSettingSource.SettingTypes.App.ToString(), false));
             var count = source.Count();
 
-            source.Add(new Setting("Test", "Test", MyTestSettingSource.SettingTypes.Conn.ToString(), false));
+            source.Add(new Setting("Test2", "Test", MyTestSettingSource.SettingTypes.Conn.ToString(), false));
             Assert.AreEqual(count + 1, source.Count());
         }
         

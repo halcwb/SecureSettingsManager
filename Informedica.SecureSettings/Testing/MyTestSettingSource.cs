@@ -17,7 +17,10 @@ namespace Informedica.SecureSettings.Testing
 
         public MyTestSettingSource(IDictionary<Enum, Action<Setting>> writers, 
                                    IDictionary<Enum, Func<Setting, bool>> removers) : base(writers, removers)
-        {}
+        {
+            if (writers == null) RegisterWriters();
+            if (removers == null) RegisterRemovers();
+        }
 
         public MyTestSettingSource()
         {
