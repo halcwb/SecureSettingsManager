@@ -19,7 +19,8 @@ namespace Informedica.SecureSettings.Tests
         [TestInitialize]
         public void IsolateSecureSettingSource()
         {
-            _fakeSetting = new TestSetting(new TestSource());
+            var testSource = new TestSource {Name = Value };
+            _fakeSetting = new TestSetting(testSource);
             _fakeSetting.Key = _fakeSetting.SecureMarker + Value;
             _fakeSetting.Value = _fakeSetting.SecureMarker + Value;
             Isolate.WhenCalled(() => _fakeSetting.Key = null).CallOriginal();
@@ -119,7 +120,7 @@ namespace Informedica.SecureSettings.Tests
         [TestMethod]
         public void NotDecryptASettingWhenNotIsSecure()
         {
-            _fakeSetting = new TestSetting(new TestSource());
+            _fakeSetting = new TestSetting(new TestSource { Name = "Test" });
             _fakeSetting.Key = "Test";
             _secureSetting = new SecureSetting(_fakeSetting, _secretKeyManager, _crypt);
 

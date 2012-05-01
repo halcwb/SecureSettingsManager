@@ -50,6 +50,8 @@
     <Compile Include="Exceptions\StringCannotBeNullOrWhiteSpaceException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Sources\ConnectionStringSettingsAdaptor.cs" />
+    <Compile Include="Sources\ISetting.cs" />
+    <Compile Include="Sources\KeyValueConfigurationElementSettingAdaptor.cs" />
     <Compile Include="Sources\SecureSetting.cs" />
     <Compile Include="Sources\Setting.cs" />
     <Compile Include="Sources\SettingFactory.cs" />

@@ -1,4 +1,5 @@
 using System;
+using Informedica.SecureSettings.Exceptions;
 
 namespace Informedica.SecureSettings.Sources
 {
@@ -11,12 +12,16 @@ namespace Informedica.SecureSettings.Sources
     public abstract class Setting<T> : ISetting
     {
         private volatile string _secureMarker = "[Secure]";
-        protected T Source;
+        protected T SourceItem;
 
-        protected Setting(T source)
+        protected Setting(T sourceItem)
         {
-            Source = source;
+            SourceItem = sourceItem;
+            CheckIfSourceIsValid();
         }
+
+        private void CheckIfSourceIsValid()
+        { if (string.IsNullOrWhiteSpace(Key)) throw new StringCannotBeNullOrWhiteSpaceException("Key of Setting should be supplied");}
 
         public abstract string Key { get; set; }
         public abstract string Value { get; set; }
@@ -29,14 +34,5 @@ namespace Informedica.SecureSettings.Sources
         {
             get { return _secureMarker; }
         }
-    }
-
-    public interface ISetting
-    {
-        string Key { get; set; }
-        string Value { get; set; }
-        Type Type { get; }
-        bool IsSecure { get; }
-        string SecureMarker { get; }
     }
 }

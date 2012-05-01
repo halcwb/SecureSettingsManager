@@ -1,4 +1,5 @@
-﻿using TypeMock.ArrangeActAssert;
+﻿using Informedica.SecureSettings.Exceptions;
+using TypeMock.ArrangeActAssert;
 using System;
 using Informedica.SecureSettings.Sources;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -24,6 +25,23 @@ namespace Informedica.SecureSettings.Tests
             Isolate.WhenCalled(() => _fakeSource.ConnectionString).WillReturn(_value);
 
             _setting = new TestSetting(_fakeSource);
+        }
+
+        [Isolated]
+        [TestMethod]
+        public void ThatWhenSettingKeyIsNullOrWhiteSpaceAnExceptionIsThrown()
+        {
+            try
+            {
+                _fakeSource = new TestSource();
+                _setting = new TestSetting(_fakeSource);
+                Assert.Fail("An exception should have been thrown");
+
+            }
+            catch (Exception e)
+            {
+                Assert.IsInstanceOfType(e, typeof(StringCannotBeNullOrWhiteSpaceException));
+            }
         }
 
         [Isolated]
@@ -103,9 +121,8 @@ namespace Informedica.SecureSettings.Tests
         [TestMethod]
         public void ThatWhenSettingKeyIsMarkedAsSecureTheSettingIsEncrypted()
         {
-            _fakeSource = new TestSource();
+            _fakeSource = new TestSource { Name = "[Secure]Test" };
             _setting = new TestSetting(_fakeSource);
-            _fakeSource.Name = "[Secure]key";
             Assert.IsTrue(_setting.IsSecure);
         }
 
@@ -115,20 +132,20 @@ namespace Informedica.SecureSettings.Tests
     {
         #region Overrides of Setting
 
-        public TestSetting(TestSource source) : base(source)
+        public TestSetting(TestSource sourceItem) : base(sourceItem)
         {
         }
 
         public override string Key
         {
-            get { return Source.Name; }
-            set { Source.Name = value; }
+            get { return SourceItem.Name; }
+            set { SourceItem.Name = value; }
         }
 
         public override string Value
         {
-            get { return Source.ConnectionString; }
-            set { Source.ConnectionString = value; }
+            get { return SourceItem.ConnectionString; }
+            set { SourceItem.ConnectionString = value; }
         }
 
         #endregion

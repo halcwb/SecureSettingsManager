@@ -5,7 +5,7 @@ namespace Informedica.SecureSettings.Sources
     public class ConnectionStringSettingsAdaptor : Setting<ConnectionStringSettings>
     {
 
-        public ConnectionStringSettingsAdaptor(ConnectionStringSettings source) : base(source)
+        public ConnectionStringSettingsAdaptor(ConnectionStringSettings sourceItem) : base(sourceItem)
         {
         }
 
@@ -13,14 +13,14 @@ namespace Informedica.SecureSettings.Sources
 
         public override string Key
         {
-            get { return Source.Name; }
-            set { Source.Name = value; }
+            get { return SourceItem.Name; }
+            set { SourceItem.Name = value; }
         }
 
         public override string Value
         {
-            get { return Source.ConnectionString; }
-            set { Source.ConnectionString = value; }
+            get { return SourceItem.ConnectionString; }
+            set { SourceItem.ConnectionString = value; }
         }
 
         #endregion
