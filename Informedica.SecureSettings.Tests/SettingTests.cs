@@ -1,5 +1,5 @@
-﻿using System;
-using Informedica.SecureSettings.Exceptions;
+﻿using TypeMock.ArrangeActAssert;
+using System;
 using Informedica.SecureSettings.Sources;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -8,68 +8,135 @@ namespace Informedica.SecureSettings.Tests
     [TestClass]
     public class SettingTests
     {
-        [TestMethod]
-        public void ThatSettingCanBeInstantiatedWithNameTestValueTestTypeTestAndIsEncrytedIsFalse()
-        {
-            var test = new Setting("Test", "Test", "Test", false);
+        private ISetting _setting;
+        private Type _type;
+        private TestSource _fakeSource;
+        private string _keyValue = "TestKey";
+        private string _value = "TestValue";
 
-            Assert.AreEqual("Test", test.Key);
-            Assert.AreEqual("Test", test.Value);
-            Assert.AreEqual("Test", test.Type);
-            Assert.IsFalse(test.IsEncrypted);
+        [TestInitialize]
+        public void SetupSetting()
+        {
+            _type = typeof (TestSource);
+            _fakeSource = new TestSource();
+            Isolate.WhenCalled(() => _fakeSource.Name = null).CallOriginal();
+            Isolate.WhenCalled(() => _fakeSource.Name).WillReturn(_keyValue);
+            Isolate.WhenCalled(() => _fakeSource.ConnectionString).WillReturn(_value);
+
+            _setting = new TestSetting(_fakeSource);
         }
 
+        [Isolated]
         [TestMethod]
-        public void ThatSettingCannotBeCreatedWithoutAName()
-        {
-            try
-            {
-                new Setting(string.Empty, "Test", "Test", false);
-                Assert.Fail("Setting cannot be created without a name");
-            }
-            catch (Exception e)
-            {
-                Assert.IsInstanceOfType(e, typeof(StringCannotBeNullOrWhiteSpaceException), e.ToString());
-            }
-        }
-
-        [TestMethod]
-        public void ThatSettingCannotBeCreatedWithoutAType()
+        public void ThatASourceIsUsedToGetTheKeyOfTheSetting()
         {
             try
             {
-                new Setting("Test", string.Empty, string.Empty, false);
-                Assert.Fail("Setting cannot be created without a type");
+                Assert.AreEqual(_setting.Key, _fakeSource.Name);
+                Isolate.Verify.WasCalledWithAnyArguments(() => _fakeSource.Name);
+
             }
             catch (Exception e)
             {
-                Assert.IsInstanceOfType(e, typeof(StringCannotBeNullOrWhiteSpaceException), e.ToString());    
+                Assert.Fail(e.ToString());
             }
         }
 
-        [TestMethod]
-        public void ThatWhenSettingNameIsMyMachineDotTestEnvironmentDotNameMachineNameIsTestMachine()
-        {
-            var setting = new Setting("MyMachine.TestEnvironment.Name", "TestValue", "Conn", true);
 
-            Assert.AreEqual("MyMachine", setting.Machine);
+        [Isolated]
+        [TestMethod]
+        public void ThatASourceIsUsedToSetTheKeyOfTheSetting()
+        {
+            try
+            {
+                _setting.Key = "New";
+                Isolate.Verify.WasCalledWithExactArguments(() => _fakeSource.Name = "New");
+
+            }
+            catch (Exception e)
+            {
+                Assert.Fail(e.ToString());
+            }
         }
 
+        [Isolated]
         [TestMethod]
-        public void ThatWhenSettingNameIsMyMachineDotTestEnvironmentDotNameEnvironmentIsTestEnvironment()
+        public void ThatASourceIsUsedToGetTheValueOfTheSetting()
         {
-            var setting = new Setting("MyMachine.TestEnvironment.Name", "TestValue", "Conn", true);
+            try
+            {
+                Assert.AreEqual(_setting.Value, _fakeSource.ConnectionString);
+                Isolate.Verify.WasCalledWithAnyArguments(() => _fakeSource.ConnectionString);
 
-            Assert.AreEqual("TestEnvironment", setting.Environment);
+            }
+            catch (Exception e)
+            {
+                Assert.Fail(e.ToString());
+            }
         }
 
+        [Isolated]
         [TestMethod]
-        public void ThatWhenSettingNameIsMyMachineDotTestEnvironmentDotNameNameIsName()
+        public void ThatASourceIsUsedToSetTheValueOfTheSetting()
         {
-            var setting = new Setting("MyMachine.TestEnvironment.Name", "TestValue", "Conn", true);
+            try
+            {
+                _setting.Value = "New";
+                Isolate.Verify.WasCalledWithExactArguments(() => _fakeSource.ConnectionString = "New");
 
-            Assert.AreEqual("Name", setting.Name);
+            }
+            catch (Exception e)
+            {
+                Assert.Fail(e.ToString());
+            }
         }
 
+
+        [Isolated]
+        [TestMethod]
+        public void ThatWhenSettingKeyIsNotMarkedAsSecureTheSettingIsNotEncrypted()
+        {
+            Assert.IsFalse(_setting.IsSecure);
+        }
+
+        [Isolated]
+        [TestMethod]
+        public void ThatWhenSettingKeyIsMarkedAsSecureTheSettingIsEncrypted()
+        {
+            _fakeSource = new TestSource();
+            _setting = new TestSetting(_fakeSource);
+            _fakeSource.Name = "[Secure]key";
+            Assert.IsTrue(_setting.IsSecure);
+        }
+
+    }
+
+    public class TestSetting : Setting<TestSource>
+    {
+        #region Overrides of Setting
+
+        public TestSetting(TestSource source) : base(source)
+        {
+        }
+
+        public override string Key
+        {
+            get { return Source.Name; }
+            set { Source.Name = value; }
+        }
+
+        public override string Value
+        {
+            get { return Source.ConnectionString; }
+            set { Source.ConnectionString = value; }
+        }
+
+        #endregion
+    }
+
+    public class TestSource
+    {
+        public string Name { get; set; }
+        public string ConnectionString { get; set; }
     }
 }

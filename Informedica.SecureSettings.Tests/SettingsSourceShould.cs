@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using Informedica.SecureSettings.Sources;
 using Informedica.SecureSettings.Testing;
@@ -11,20 +12,34 @@ namespace Informedica.SecureSettings.Tests
     [TestClass]
     public class SettingsSourceShould
     {
+        private ISetting _setting;
+        private string _keyValue = "Test";
+        private string _value = "Test";
+
+        [TestInitialize]
+        public void SetupIsolatedSettingSource()
+        {
+            _setting = Isolate.Fake.Instance<ISetting>();
+            Isolate.WhenCalled(() => _setting.Type).WillReturn(typeof(ConnectionStringSettings));
+            Isolate.WhenCalled(() => _setting.Key).WillReturn(_keyValue);
+            Isolate.WhenCalled(() => _setting.Value).WillReturn(_value);
+        }
+
+
         [Isolated]
         [TestMethod]
         public void BeAbleToUseATestTypeSettingWriterToWriteASetting()
         {
-            var writers = new Dictionary<Enum, Action<Setting>>();
-            Action<Setting> fakeWriter = FakeWriters.Write;
-            var setting = new Setting("Test", "Test", "Test", false);
+            var writers = new Dictionary<Type, Action<ISetting>>();
+            Action<ISetting> fakeWriter = FakeWriters.Write;
+            var setting = Isolate.Fake.Instance<ISetting>();
+            Isolate.WhenCalled(() => setting.Type).WillReturn(typeof(ConnectionStringSettings));
             Isolate.WhenCalled(() => fakeWriter.Invoke(setting)).IgnoreCall();
-            writers.Add(MyTestSettingSource.SettingTypes.App, fakeWriter);
+            writers.Add(typeof(ConnectionStringSettings), fakeWriter);
 
             try
             {
-                var source = new MyTestSettingSource(writers, new Dictionary<Enum, Func<Setting, bool>>());
-                source.Add(setting);
+                var source = new MyTestSettingSource(writers, new Dictionary<Type, Func<ISetting, bool>>()) {setting};
                 Isolate.Verify.WasCalledWithExactArguments(() => fakeWriter.Invoke(setting));
 
             }
@@ -39,11 +54,12 @@ namespace Informedica.SecureSettings.Tests
         [TestMethod]
         public void BeAbleToUseATestTypeSettingRemovertoRemoveASetting()
         {
-            var removers = new Dictionary<Enum, Func<Setting, bool>>();
-            Func<Setting, bool> fakeRemover = FakeRemovers.Remove;
-            var fakeSetting = Isolate.Fake.Instance<Setting>();
+            var removers = new Dictionary<Type, Func<ISetting, bool>>();
+            Func<ISetting, bool> fakeRemover = FakeRemovers.Remove;
+            var fakeSetting = Isolate.Fake.Instance<ISetting>();
+            Isolate.WhenCalled(() => fakeSetting.Type).WillReturn(typeof(ConnectionStringSettings));
             Isolate.WhenCalled(() => fakeRemover.Invoke(fakeSetting)).WillReturn(true);
-            removers.Add(MyTestSettingSource.SettingTypes.App, fakeRemover);
+            removers.Add(typeof(ConnectionStringSettings), fakeRemover);
 
             var source = new MyTestSettingSource(null, removers);
             try
@@ -64,22 +80,20 @@ namespace Informedica.SecureSettings.Tests
         {
             var source = MyTestSettingSource.CreateMySettingSource();
            
-            source.Add(new Setting("Test", "Test", MyTestSettingSource.SettingTypes.App.ToString(), false));
-            var setting = source.SingleOrDefault(s => s.Type == "App" && s.Key == "Test");
+            source.Add(_setting);
+            var setting = source.SingleOrDefault(s => s.Type == typeof(ConnectionStringSettings) && s.Key == _keyValue);
             Assert.IsNotNull(setting);
-            Assert.AreEqual("Test", setting.Value);
+            Assert.AreEqual(_value, setting.Value);
         }
 
         [TestMethod]
         public void HaveCountPlusOneWhenSettingIsAdded()
         {
             var source = MyTestSettingSource.CreateMySettingSource();
-            Assert.IsFalse(source.Any());
+            var count = source.Count();            
 
-            source.Add(new Setting("Test1", "Test", MyTestSettingSource.SettingTypes.App.ToString(), false));
-            var count = source.Count();
+            source.Add(_setting);
 
-            source.Add(new Setting("Test2", "Test", MyTestSettingSource.SettingTypes.Conn.ToString(), false));
             Assert.AreEqual(count + 1, source.Count());
         }
         
@@ -87,11 +101,10 @@ namespace Informedica.SecureSettings.Tests
         public void HaveCountMinusOneWhenSettingIsRemoved()
         {
             var source = MyTestSettingSource.CreateMySettingSource();
-            var setting = new Setting("Test", "Test", MyTestSettingSource.SettingTypes.App.ToString(), false);
-            source.Add(setting);
+            source.Add(_setting);
 
             var count = source.Count();
-            source.Remove(setting);
+            source.Remove(_setting);
 
             Assert.AreEqual(count -1 , source.Count());
         }
@@ -101,11 +114,10 @@ namespace Informedica.SecureSettings.Tests
         public void ThrowAnMethodNotFoundExceptionWhenMethodIsCalledButNotRegistered()
         {
             var source = SetupSettingSourceWithoutWritersOrReadersOrRemovers();
-            var setting = new Setting("Test", "Test", MyTestSettingSource.SettingTypes.App.ToString(), false);
 
             try
             {
-                source.Add(setting);
+                source.Add(_setting);
 
             }
             catch (Exception e)
@@ -116,8 +128,8 @@ namespace Informedica.SecureSettings.Tests
 
         private static MyTestSettingSource SetupSettingSourceWithoutWritersOrReadersOrRemovers()
         {
-            var fakeRemovers = Isolate.Fake.Instance<IDictionary<Enum, Func<Setting, bool>>>();
-            var fakeWriters = Isolate.Fake.Instance<IDictionary<Enum, Action<Setting>>>();
+            var fakeRemovers = Isolate.Fake.Instance<IDictionary<Type, Func<ISetting, bool>>>();
+            var fakeWriters = Isolate.Fake.Instance<IDictionary<Type, Action<ISetting>>>();
             var source = new MyTestSettingSource(fakeWriters, fakeRemovers);
             return source;
         }
@@ -125,7 +137,7 @@ namespace Informedica.SecureSettings.Tests
 
     public static class FakeRemovers
     {
-        public static bool Remove(Setting setting)
+        public static bool Remove(ISetting setting)
         {
             return true;
         }
@@ -133,7 +145,7 @@ namespace Informedica.SecureSettings.Tests
 
     public static class FakeWriters
     {
-        public static void Write(Setting setting)
+        public static void Write(ISetting setting)
         {
             
         }

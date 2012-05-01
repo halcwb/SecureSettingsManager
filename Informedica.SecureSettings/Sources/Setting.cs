@@ -1,4 +1,4 @@
-using Informedica.SecureSettings.Exceptions;
+using System;
 
 namespace Informedica.SecureSettings.Sources
 {
@@ -8,52 +8,35 @@ namespace Informedica.SecureSettings.Sources
     /// A setting has a name to identify the setting, a value, a type to store the 
     /// type of the setting and whether the setting is encrypted or not.
     /// </summary>
-    public class Setting
+    public abstract class Setting<T> : ISetting
     {
-        public Setting(string name, string value, string type, bool encrypted)
-        {
-            if (string.IsNullOrWhiteSpace(name)) 
-                throw new StringCannotBeNullOrWhiteSpaceException("Name of setting");
-            if (string.IsNullOrWhiteSpace(type)) 
-                throw new StringCannotBeNullOrWhiteSpaceException("Type of setting");
+        private volatile string _secureMarker = "[Secure]";
+        protected T Source;
 
-            Key = name;
-            Value = value;
-            Type = type;
-            IsEncrypted = encrypted;
+        protected Setting(T source)
+        {
+            Source = source;
         }
 
-        public readonly string Key;
-        public readonly string Value;
-        public readonly string Type;
-        public readonly bool IsEncrypted;
+        public abstract string Key { get; set; }
+        public abstract string Value { get; set; }
 
-        public string Machine
+        public Type Type { get { return typeof(T); } }
+
+        public bool IsSecure { get { return Key.StartsWith(SecureMarker); } }
+
+        public string SecureMarker
         {
-            get { return TryGetArrayAtIndex(0); }
+            get { return _secureMarker; }
         }
+    }
 
-        public string Environment
-        {
-            get { return TryGetArrayAtIndex(1); }
-        }
-
-        public string Name
-        {
-            get { return TryGetArrayAtIndex(2); }
-        }
-
-        private string TryGetArrayAtIndex(int index)
-        {
-            try
-            {
-                return Key.Split('.')[index];
-
-            }
-            catch (System.Exception)
-            {
-                return string.Empty;
-            }
-        }
+    public interface ISetting
+    {
+        string Key { get; set; }
+        string Value { get; set; }
+        Type Type { get; }
+        bool IsSecure { get; }
+        string SecureMarker { get; }
     }
 }

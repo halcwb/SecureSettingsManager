@@ -5,18 +5,18 @@ using System.Linq;
 
 namespace Informedica.SecureSettings.Sources
 {
-    public abstract class SettingSource: ICollection<Setting>
+    public abstract class SettingSource: ICollection<ISetting>
     {
-        private IDictionary<Enum, Action<Setting>> _writers;
-        private IDictionary<Enum, Func<Setting, bool>> _removers;
+        private IDictionary<Type, Action<ISetting>> _writers;
+        private IDictionary<Type, Func<ISetting, bool>> _removers;
 
         protected SettingSource()
         {
             Init();
         }
 
-        protected SettingSource(IDictionary<Enum, Action<Setting>> writers, 
-                                IDictionary<Enum, Func<Setting, bool>> removers)
+        protected SettingSource(IDictionary<Type, Action<ISetting>> writers, 
+                                IDictionary<Type, Func<ISetting, bool>> removers)
         {
             _writers = writers;
             _removers = removers;
@@ -28,31 +28,29 @@ namespace Informedica.SecureSettings.Sources
             RegisterRemovers();
         }
 
-        protected IDictionary<Enum, Action<Setting>> Writers
+        protected IDictionary<Type, Action<ISetting>> Writers
         {
-            get { return _writers ?? (_writers = new Dictionary<Enum, Action<Setting>>()); }
+            get { return _writers ?? (_writers = new Dictionary<Type, Action<ISetting>>()); }
         }
 
-        protected IDictionary<Enum, Func<Setting, bool>> Removers
+        protected IDictionary<Type, Func<ISetting, bool>> Removers
         {
-            get { return _removers ?? (_removers = new Dictionary<Enum, Func<Setting, bool>>()); }
+            get { return _removers ?? (_removers = new Dictionary<Type, Func<ISetting, bool>>()); }
         }
 
-        private void WriteSetting(Setting setting)
+        private void WriteSetting(ISetting setting)
         {
-            var method = Writers.ContainsKey(SettingTypeToEnum(setting)) ? Writers[SettingTypeToEnum(setting)]: null;
+            var method = Writers.ContainsKey(setting.Type) ? Writers[setting.Type]: null;
             if (method == null) throw new MissingMethodException("Method not found to write setting of type: " + setting.Type);
             method.Invoke(setting);
         }
 
-        private bool RemoveSetting(Setting setting)
+        private bool RemoveSetting(ISetting setting)
         {
-            var method = Removers.ContainsKey(SettingTypeToEnum(setting)) ? Removers[SettingTypeToEnum(setting)]: null;
+            var method = Removers.ContainsKey(setting.Type) ? Removers[setting.Type]: null;
             if (method == null) throw new MissingMethodException("Method not found to remove setting of type: " + setting.Type);
             return method.Invoke(setting);
         }
-
-        protected abstract Enum SettingTypeToEnum(Setting setting);
 
         protected abstract void RegisterWriters();
         protected abstract void RegisterRemovers();
@@ -67,12 +65,12 @@ namespace Informedica.SecureSettings.Sources
         /// A <see cref="T:System.Collections.Generic.IEnumerator`1"/> that can be used to iterate through the collection.
         /// </returns>
         /// <filterpriority>1</filterpriority>
-        public IEnumerator<Setting> GetEnumerator()
+        public IEnumerator<ISetting> GetEnumerator()
         {
             return Settings.GetEnumerator();
         }
 
-        protected abstract IEnumerable<Setting> Settings { get; }
+        protected abstract IEnumerable<ISetting> Settings { get; }
 
         /// <summary>
         /// Returns an enumerator that iterates through a collection.
@@ -90,7 +88,7 @@ namespace Informedica.SecureSettings.Sources
 
         #region Implementation of ICollection<Setting>
 
-        public void Add(Setting item)
+        public void Add(ISetting item)
         {
             var setting = Settings.SingleOrDefault(s => s.Key == item.Key);
             if (setting != null) Remove(setting);
@@ -101,12 +99,12 @@ namespace Informedica.SecureSettings.Sources
         {
         }
 
-        public bool Contains(Setting item)
+        public bool Contains(ISetting item)
         {
             throw new NotImplementedException();
         }
 
-        public void CopyTo(Setting[] array, int arrayIndex)
+        public void CopyTo(ISetting[] array, int arrayIndex)
         {
             var i = 0;
             foreach (var setting in this)
@@ -116,7 +114,7 @@ namespace Informedica.SecureSettings.Sources
             }
         }
 
-        public bool Remove(Setting item)
+        public bool Remove(ISetting item)
         {
             return Settings.Any(s => s.Key == item.Key) && RemoveSetting(item);
         }
