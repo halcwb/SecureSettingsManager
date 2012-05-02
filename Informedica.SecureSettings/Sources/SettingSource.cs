@@ -97,6 +97,7 @@ namespace Informedica.SecureSettings.Sources
 
         public void Clear()
         {
+            throw  new NotImplementedException();
         }
 
         public bool Contains(ISetting item)
